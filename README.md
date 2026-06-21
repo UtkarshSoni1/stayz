@@ -146,8 +146,8 @@ db/add-review-table
 
 | Name | Feature Ownership |
 |------|-------------------|
-| [Utkarsh Soni] | To be updated... |
-| [Raj Kewat] | To be updated... |
+| [Utkarsh Soni](https://github.com/UtkarshSoni1)| To be updated... |
+| [Raj Kewat](https://github.com/RAJ-TECH-11)| To be updated... |
 
 ---
 
