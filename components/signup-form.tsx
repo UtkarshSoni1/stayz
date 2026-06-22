@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -15,11 +20,57 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+    const router = useRouter();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error);
+        return;
+      }
+
+      alert("Account created successfully!");
+      router.push("/login");
+    } catch {
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Join StayZ</h1>
@@ -30,32 +81,48 @@ export function SignupForm({
               <Field>
   <FieldLabel htmlFor="name">Full Name</FieldLabel>
   <Input
-    id="name"
-    type="text"
-    placeholder="Raj Kewat"
-    required
-  />
+  id="name"
+  type="text"
+  placeholder="Raj Kewat"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  required
+/>
 </Field>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
+  id="email"
+  type="email"
+  placeholder="m@example.com"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  required
+/>
               </Field>
               <Field>
                 <Field className="grid grid-cols-2 gap-4">
                   <Field>
                     <FieldLabel htmlFor="password">Password</FieldLabel>
-                    <Input id="password" type="password" required />
+                   <Input
+  id="password"
+  type="password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  required
+/>
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="confirm-password">
                       Confirm Password
                     </FieldLabel>
-                    <Input id="confirm-password" type="password" required />
+                    <Input
+  id="confirm-password"
+  type="password"
+  value={confirmPassword}
+  onChange={(e) => setConfirmPassword(e.target.value)}
+  required
+/>
                   </Field>
                 </Field>
                 <FieldDescription>
@@ -63,13 +130,19 @@ export function SignupForm({
                 </FieldDescription>
               </Field>
               <Field>
-                <Button type="submit">Create Account</Button>
+                <Button type="submit" disabled={loading}>
+  {loading ? "Creating..." : "Create Account"}
+</Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Or continue with
               </FieldSeparator>
 <Field>
-  <Button variant="outline" type="button">
+  <Button
+    variant="outline"
+    type="button"
+    onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+  >
     Continue with Google
   </Button>
 </Field>
