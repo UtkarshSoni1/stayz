@@ -19,8 +19,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts Account[]
-  sessions Session[]
+  accounts      Account[]
+  sessions      Session[]
+  listings      Listing[]       @relation("UserListings")
+  savedListings SavedListing[]  @relation("UserSavedListings")
+  reviews       Review[]        @relation("UserReviews")
 }
 
 // Required by Auth.js Prisma Adapter for OAuth providers
@@ -64,4 +67,121 @@ enum Role {
   USER
   OWNER
   ADMIN
+}
+
+// ─── New Enums ───────────────────────────────────────────────────────────────
+
+enum RoomType {
+  SINGLE
+  SHARED
+  PG
+  FLAT
+}
+
+enum GenderPreference {
+  MALE
+  FEMALE
+  ANY
+}
+
+enum Furnishing {
+  FURNISHED
+  SEMI_FURNISHED
+  UNFURNISHED
+}
+
+// ─── Listing ─────────────────────────────────────────────────────────────────
+
+model Listing {
+  id               String           @id @default(cuid())
+  ownerId          String
+  title            String
+  description      String
+  city             String
+  locality         String
+  address          String?
+  pincode          String?
+  monthlyRent      Int
+  deposit          Int?
+  roomType         RoomType
+  genderPreference GenderPreference @default(ANY)
+  furnishing       Furnishing
+  isAvailable      Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  owner     User             @relation("UserListings", fields: [ownerId], references: [id], onDelete: Cascade)
+  images    ListingImage[]
+  amenities ListingAmenity[]
+  saves     SavedListing[]   @relation("ListingSaves")
+  reviews   Review[]         @relation("ListingReviews")
+
+  @@index([city, locality])
+  @@index([monthlyRent])
+  @@index([roomType])
+  @@index([isAvailable])
+}
+
+// ─── ListingImage ─────────────────────────────────────────────────────────────
+
+model ListingImage {
+  id        String   @id @default(cuid())
+  listingId String
+  url       String
+  publicId  String?  // Cloudinary public ID for cleanup
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+// ─── Amenity ──────────────────────────────────────────────────────────────────
+
+model Amenity {
+  id       String           @id @default(cuid())
+  name     String           @unique
+  icon     String?
+  listings ListingAmenity[]
+}
+
+// ─── ListingAmenity (junction) ────────────────────────────────────────────────
+
+model ListingAmenity {
+  listingId String
+  amenityId String
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  amenity Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([listingId, amenityId])
+}
+
+// ─── SavedListing ─────────────────────────────────────────────────────────────
+
+model SavedListing {
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation("UserSavedListings", fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation("ListingSaves", fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@id([userId, listingId])
+}
+
+// ─── Review ───────────────────────────────────────────────────────────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  listingId String
+  userId    String
+  rating    Int      // TODO: add CHECK (rating >= 1 AND rating <= 5) via raw SQL in migration
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listing Listing @relation("ListingReviews", fields: [listingId], references: [id], onDelete: Cascade)
+  user    User    @relation("UserReviews", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, userId])
 }
