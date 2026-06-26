@@ -1,15 +1,15 @@
 import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { Furnishing, GenderPreference, RoomType } from "@prisma/client";
-import SearchBar from "./_components/SearchBar";
-import DashboardButton from "./_components/DashboardButton";
-import ListingCard from "./_components/ListingCard";
+import { RoomType, GenderPreference } from "@prisma/client";
+import SearchBar from "@/components/listings/SearchBar";
+import DashboardButton from "@/components/listings/DashboardButton";
+import ListingCard from "@/components/listings/ListingCard";
 import { Home } from "lucide-react";
 import {
   ROOM_TYPE_LABELS,
   GENDER_LABELS,
-} from "./_components/listingConfig";
+} from "@/components/listings/listingConfig";
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
 export const metadata = {
