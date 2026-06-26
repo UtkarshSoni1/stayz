@@ -49,7 +49,7 @@ export default async function DashboardPage() {
             <Link href="/listings" className="text-muted-foreground hover:text-primary transition-colors">
               Browse
             </Link>
-            <Link href="/dashboard/listings/new" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/add-listing" className="text-muted-foreground hover:text-primary transition-colors">
               List a Property
             </Link>
           </nav>
@@ -128,7 +128,7 @@ export default async function DashboardPage() {
               <h2 className="font-semibold mb-4">Quick Actions</h2>
               <div className="flex flex-col gap-2">
                 {[
-                  { label: "List a New Property", href: "/dashboard/listings/new", icon: PlusCircle, desc: "Start earning today" },
+                  { label: "List a New Property", href: "/add-listing", icon: PlusCircle, desc: "Start earning today" },
                   { label: "My Listings", href: "/dashboard/listings", icon: List, desc: "Manage your properties" },
                   { label: "Browse Stays", href: "/listings", icon: MapPin, desc: "Find your next stay" },
                   { label: "Edit Profile", href: "/dashboard/profile", icon: User, desc: "Update your info" },

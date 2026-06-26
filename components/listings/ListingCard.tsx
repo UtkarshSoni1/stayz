@@ -43,7 +43,7 @@ export default function ListingCard({ listing }: { listing: ListingWithImage }) 
 
   return (
     <Link
-      href={`/listings/${listing.id}`}
+      href={`/listings-details/${listing.id}`}
       id={`listing-card-${listing.id}`}
       className="group relative flex flex-col rounded-xl border bg-card overflow-hidden transition-all duration-200 hover:shadow-md hover:scale-[1.015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
