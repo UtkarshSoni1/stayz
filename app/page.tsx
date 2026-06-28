@@ -1,11 +1,30 @@
-// import Image from "next/image";
+import React from "react";
+import { TopNavBar } from "../components/home/TopNavBar";
+import { Hero } from "../components/home/Hero";
+import { BottomNavBar } from "../components/home/BottomNavBar";
+import { Mission } from "@/components/home/Mission";
+import { EditorialCollage } from "@/components/home/EditorialCollage";
+import { Stats } from "@/components/home/Stats";
+import { FAQPanels } from "@/components/home/FAQPanels";
+import { EditorialBreak } from "@/components/home/EditorialBreak";
+import { Voices } from "@/components/home/Voices";
+import { EditorialFooter } from "@/components/home/EditorialFooter";
 
-export default function Home() {
+const App: React.FC = () => {
   return (
-    <>
-    <h1 className="text-center text-6xl mt-10 font-bold">Welcome To StayZ</h1>
-    <h1 className="text-center text-4xl mt-5 font-medium italic font-mono">A New, Fresh, and Spectacular StayZ will be coming soon..</h1>
-    <p className="text-center text-3xl mt-4 font-medium italic font-mono text-blue-400 absolute bottom-20 left-1/3">Developed By<br/> Utkarsh Soni & Raj kewat</p>
-    </>
+    <div className="bg-[#131313] text-on-background antialiased min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+      <TopNavBar />
+      <Hero />
+      <Mission/>
+      <EditorialCollage/>
+      <Stats/>
+      <FAQPanels/>
+      <EditorialBreak/>
+      <Voices/>
+      <EditorialFooter/>
+      <BottomNavBar />
+    </div>
   );
-}
+};
+
+export default App;
