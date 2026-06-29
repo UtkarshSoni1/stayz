@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { MinimalNavBar } from "@/components/navbar/MinimalNavBar";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import {
@@ -135,23 +136,7 @@ export default async function ListingDetailPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <header className="border-b bg-card sticky top-0 z-10">
-        <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 lg:px-8 flex items-center gap-3">
-          <Link
-            href="/listings"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to listings
-          </Link>
-          <span className="text-muted-foreground/30">|</span>
-          <div className="flex items-center gap-2">
-            <Home className="h-5 w-5 text-primary" />
-            <span className="font-bold text-primary">StayZ</span>
-          </div>
-        </div>
-      </header>
+      <MinimalNavBar />
 
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-[1fr_320px]">

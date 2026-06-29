@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef } from "react";
-
+import { HiArrowNarrowRight } from "react-icons/hi";
 interface ScatteredImage {
   src: string;
   alt: string;
@@ -58,8 +58,8 @@ export const EditorialCollage: React.FC = () => {
         <h1 className="text-white font-black text-[120px] leading-[110px] tracking-[-0.05em] mb-12 drop-shadow-sm">
           Where Every Journey Finds a Home
         </h1>
-        <a className="inline-flex items-center gap-2 border-2 px-10 py-4 rounded-full font-bold text-lg hover:bg-blue-600 hover:text-white transition-all duration-300 transform active:scale-95 border-white text-white pointer-events-auto" href="#">
-          Browse Listings <span className="material-symbols-outlined">--#</span>
+        <a className="inline-flex items-center gap-2 border-2 border-[#FFEDE7] px-10 py-4 rounded-full font-bold text-lg hover:bg-[#1A4FD1] hover:text-white transition-all duration-300 transform active:scale-95 text-white pointer-events-auto" href="#">
+          Browse Listings <HiArrowNarrowRight className="text-3xl" />
         </a>
       </div>
     </section>

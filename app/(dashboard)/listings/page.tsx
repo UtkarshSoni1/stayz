@@ -5,7 +5,7 @@ import { RoomType, GenderPreference } from "@prisma/client";
 import SearchBar from "@/components/listings/SearchBar";
 import DashboardButton from "@/components/listings/DashboardButton";
 import ListingCard from "@/components/listings/ListingCard";
-import { Home } from "lucide-react";
+import { AppNavBar } from "@/components/navbar/AppNavBar";
 import {
   ROOM_TYPE_LABELS,
   GENDER_LABELS,
@@ -80,31 +80,16 @@ export default async function ListingsPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* ── Sticky header ──────────────────────────────────────────────────── */}
-      <header className="border-b bg-card sticky top-0 z-10">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          {/* Top row: wordmark + dashboard button */}
-          <div className="mb-4 flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <Home className="h-8 w-8 text-primary shrink-0" />
-              <div>
-                <h1 className="text-3xl font-bold leading-none tracking-tight text-primary sm:text-4xl">
-                  StayZ
-                </h1>
-                <p className="mt-0.5 text-sm italic text-muted-foreground">
-                  for Gen-Z, by Gen-Z
-                </p>
-              </div>
-            </div>
-            <DashboardButton isLoggedIn={isLoggedIn} />
-          </div>
+      <AppNavBar />
 
-          {/* Search bar — Suspense required for useSearchParams */}
+      {/* ── Search Bar section ── */}
+      <div className="border-b bg-card py-4">
+        <div className="mx-auto max-w-7xl px-6">
           <Suspense fallback={<div className="h-14 rounded-xl bg-muted/30 animate-pulse" />}>
             <SearchBar />
           </Suspense>
         </div>
-      </header>
+      </div>
 
       {/* ── Content ────────────────────────────────────────────────────────── */}
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">

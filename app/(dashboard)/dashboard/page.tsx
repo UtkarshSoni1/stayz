@@ -1,6 +1,7 @@
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getDashboardSummary } from "@/lib/dashboard-service";
+import { AppNavBar } from "@/components/navbar/AppNavBar";
 import {
   Home,
   PlusCircle,
@@ -68,65 +69,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top Navigation */}
-      <header className="border-b bg-card sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <Home className="w-5 h-5 text-primary" />
-            <span className="font-bold text-lg tracking-tight">StayZ</span>
-          </div>
-
-          {/* Nav links */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link href="/dashboard" className="text-foreground hover:text-primary transition-colors">
-              Dashboard
-            </Link>
-            <Link href="/listings" className="text-muted-foreground hover:text-primary transition-colors">
-              Browse
-            </Link>
-            <Link href="/my-listings" className="text-muted-foreground hover:text-primary transition-colors">
-              My Listings
-            </Link>
-            <Link href="/add-listing" className="text-muted-foreground hover:text-primary transition-colors">
-              List a Property
-            </Link>
-          </nav>
-
-          {/* User menu */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              {user.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={user.image}
-                  alt={user.name ?? "User"}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-border"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                  {initials}
-                </div>
-              )}
-              <span className="hidden sm:block text-sm font-medium">{user.name ?? user.email}</span>
-            </div>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/login" });
-              }}
-            >
-              <button
-                type="submit"
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded-md hover:bg-destructive/10"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Sign out</span>
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
+      <AppNavBar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Banner */}

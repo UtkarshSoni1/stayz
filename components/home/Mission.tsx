@@ -1,6 +1,7 @@
 "use client"
 import React, { useEffect, useRef } from "react";
 import { ThumbnailGalleries } from "./ThumbnailGalleries";
+import { HiArrowNarrowRight } from "react-icons/hi";
 
 export const Mission: React.FC = () => {
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -36,13 +37,11 @@ export const Mission: React.FC = () => {
             Just your vibe, your place.
           </h1>
           <a
-            className="inline-flex items-center justify-center mt-10 border-2 border-white text-white font-bold text-[14px] uppercase tracking-widest px-10 py-5 rounded-full hover:bg-white hover:text-black transition-all active:scale-95 group"
+            className="inline-flex items-center justify-center mt-10 border-2 border-[#FFEDE7] text-white font-bold text-[18px] uppercase tracking-widest px-10 py-5 rounded-full hover:bg-[#1A4FD1] hover:gap-4 transition-all active:scale-95 group"
             href="#explore"
           >
-            Explore StayZ 
-            <span className="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">
-              --?
-            </span>
+            Explore StayZ
+            <HiArrowNarrowRight className="text-3xl ml-2 " />
           </a>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useCallback, useTransition } from "react"
 import Link from "next/link";
 import { PlusCircle, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AppNavBar } from "@/components/navbar/AppNavBar";
 import { SummaryCards } from "@/components/my-listings/summary-cards";
 import { FiltersBar } from "@/components/my-listings/filters-bar";
 import { ListingCard } from "@/components/my-listings/listing-card";
@@ -184,56 +185,7 @@ export default function MyListingsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-foreground">
-      {/* ── Header ────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-20 border-b border-white/[0.06] bg-[#0a0a0a]/80 backdrop-blur-xl">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between gap-4">
-            {/* Logo */}
-            <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white">
-                <LayoutGrid className="h-4 w-4 text-black" />
-              </div>
-              <span className="font-bold text-base tracking-tight text-foreground hidden sm:block">
-                StayZ
-              </span>
-            </Link>
-
-            {/* Nav */}
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              <Link
-                href="/dashboard"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/listings"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Browse
-              </Link>
-              <Link
-                href="/my-listings"
-                className="text-foreground font-medium border-b border-white/40 pb-0.5"
-              >
-                My Listings
-              </Link>
-            </nav>
-
-            {/* Add new */}
-            <Button
-              asChild
-              className="gap-2 rounded-lg bg-white text-black hover:bg-white/90 font-medium shadow-md shrink-0"
-            >
-              <Link href="/add-listing">
-                <PlusCircle className="h-4 w-4" />
-                <span className="hidden sm:inline">Add New Listing</span>
-                <span className="sm:hidden">Add</span>
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AppNavBar />
 
       {/* ── Main ──────────────────────────────────────────────────────────── */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">

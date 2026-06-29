@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Home, ArrowLeft, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { AppNavBar } from "@/components/navbar/AppNavBar"
 import { PropertyDetails } from "@/components/add-listing/property-details"
 import { LocationSection } from "@/components/add-listing/location-section"
 import { PricingSection } from "@/components/add-listing/pricing-section"
@@ -262,36 +263,7 @@ export default function AddListingPage() {
         <div className="absolute top-1/2 -left-60 h-[500px] w-[500px] rounded-full bg-blue-500/3 blur-[100px]" />
       </div>
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <div className="flex h-14 items-center justify-between gap-4">
-            {/* Brand */}
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-foreground/80 transition-colors"
-            >
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
-                <Home className="h-3.5 w-3.5 text-primary" />
-              </div>
-              StayZ
-            </Link>
-
-            {/* Back */}
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="gap-1.5 text-muted-foreground hover:text-foreground"
-            >
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Back</span>
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AppNavBar />
 
       {/* Page Content */}
       <main className="mx-auto max-w-3xl px-4 pb-32 pt-8 sm:px-6 sm:pt-10">
