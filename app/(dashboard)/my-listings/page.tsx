@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback, useTransition } from "react";
 import Link from "next/link";
 import { PlusCircle, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,76 +9,42 @@ import { FiltersBar } from "@/components/my-listings/filters-bar";
 import { ListingCard } from "@/components/my-listings/listing-card";
 import { EmptyState } from "@/components/my-listings/empty-state";
 import { ListingsGridSkeleton } from "@/components/my-listings/listing-skeleton";
-import { DUMMY_LISTINGS } from "@/lib/dummy-listings";
 import type { MyListing } from "@/components/my-listings/types";
 import type {
   StatusFilter,
   RoomTypeFilter,
   SortOption,
 } from "@/components/my-listings/filters-bar";
+import type { MyListingDTO, ApiSuccessResponse, ApiErrorResponse } from "@/types/listing";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── DTO → UI type adapter ─────────────────────────────────────────────────────
 
-function applyFiltersAndSort(
-  listings: MyListing[],
-  search: string,
-  status: StatusFilter,
-  roomType: RoomTypeFilter,
-  sort: SortOption
-): MyListing[] {
-  let result = [...listings];
-
-  // Search
-  if (search.trim()) {
-    const q = search.trim().toLowerCase();
-    result = result.filter(
-      (l) =>
-        l.title.toLowerCase().includes(q) ||
-        l.locality.toLowerCase().includes(q) ||
-        l.city.toLowerCase().includes(q)
-    );
-  }
-
-  // Status
-  if (status !== "ALL") {
-    result = result.filter((l) => l.status === status);
-  }
-
-  // Room type
-  if (roomType !== "ALL") {
-    result = result.filter((l) => l.roomType === roomType);
-  }
-
-  // Sort
-  switch (sort) {
-    case "NEWEST":
-      result.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      break;
-    case "OLDEST":
-      result.sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
-      break;
-    case "RENT_HIGH_LOW":
-      result.sort((a, b) => b.rent - a.rent);
-      break;
-    case "RENT_LOW_HIGH":
-      result.sort((a, b) => a.rent - b.rent);
-      break;
-  }
-
-  return result;
+function toMyListing(dto: MyListingDTO): MyListing {
+  return {
+    id: dto.id,
+    title: dto.title,
+    city: dto.city,
+    locality: dto.locality,
+    rent: dto.rent,
+    roomType: dto.roomType as MyListing["roomType"],
+    furnishing: dto.furnishing as MyListing["furnishing"],
+    genderPreference: dto.genderPreference as MyListing["genderPreference"],
+    status: dto.status as MyListing["status"],
+    coverImage: dto.coverImage,
+    rating: dto.rating,
+    reviews: dto.reviews,
+    saves: dto.saves,
+    createdAt: dto.createdAt,
+  };
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function MyListingsPage() {
-  const [listings, setListings] = useState<MyListing[]>(DUMMY_LISTINGS);
-  const [isLoading] = useState(false);
+  const [listings, setListings] = useState<MyListing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   // Filter state
   const [search, setSearch] = useState("");
@@ -86,7 +52,62 @@ export default function MyListingsPage() {
   const [roomType, setRoomType] = useState<RoomTypeFilter>("ALL");
   const [sort, setSort] = useState<SortOption>("NEWEST");
 
-  // Computed stats
+  // ── Fetch listings from the API ─────────────────────────────────────────────
+
+  const fetchListings = useCallback(
+    async (opts: {
+      search: string;
+      status: StatusFilter;
+      roomType: RoomTypeFilter;
+      sort: SortOption;
+    }) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams();
+        if (opts.search) params.set("search", opts.search);
+        if (opts.status !== "ALL") params.set("status", opts.status);
+        if (opts.roomType !== "ALL") params.set("roomType", opts.roomType);
+        params.set("sort", opts.sort);
+
+        const res = await fetch(`/api/listings/my?${params.toString()}`);
+        const json = (await res.json()) as
+          | ApiSuccessResponse<MyListingDTO[]>
+          | ApiErrorResponse;
+
+        if (!res.ok || !json.success) {
+          setError((json as ApiErrorResponse).error ?? "Failed to load listings.");
+          return;
+        }
+
+        setListings(
+          (json as ApiSuccessResponse<MyListingDTO[]>).data.map(toMyListing)
+        );
+      } catch {
+        setError("Network error — please check your connection.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  // Initial load
+  useEffect(() => {
+    fetchListings({ search, status, roomType, sort });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Re-fetch on filter changes (debounced via transition for search)
+  useEffect(() => {
+    startTransition(() => {
+      fetchListings({ search, status, roomType, sort });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, status, roomType, sort]);
+
+  // ── Computed stats (from full unfiltered listings or API counts) ────────────
+
   const stats = useMemo(
     () => ({
       total: listings.length,
@@ -97,38 +118,69 @@ export default function MyListingsPage() {
     [listings]
   );
 
-  // Filtered + sorted view
-  const filteredListings = useMemo(
-    () => applyFiltersAndSort(listings, search, status, roomType, sort),
-    [listings, search, status, roomType, sort]
-  );
+  // ── Action handlers ─────────────────────────────────────────────────────────
 
-  // Handlers
-  function handleDuplicate(id: string) {
-    const original = listings.find((l) => l.id === id);
-    if (!original) return;
-    const duplicate: MyListing = {
-      ...original,
-      id: `lst-dup-${Date.now()}`,
-      title: `${original.title} (Copy)`,
-      status: "DRAFT",
-      rating: null,
-      reviews: 0,
-      saves: 0,
-      createdAt: new Date().toISOString(),
-    };
-    setListings((prev) => [duplicate, ...prev]);
+  async function handleDuplicate(id: string) {
+    try {
+      const res = await fetch(`/api/listings/${id}/duplicate`, {
+        method: "POST",
+      });
+      const json = (await res.json()) as
+        | ApiSuccessResponse<MyListingDTO>
+        | ApiErrorResponse;
+
+      if (!res.ok || !json.success) return;
+
+      const copy = toMyListing((json as ApiSuccessResponse<MyListingDTO>).data);
+      setListings((prev) => [copy, ...prev]);
+    } catch {
+      // silently fail — user can retry
+    }
   }
 
-  function handleMarkRented(id: string) {
+  async function handleMarkRented(id: string) {
+    // Optimistic update
     setListings((prev) =>
       prev.map((l) => (l.id === id ? { ...l, status: "RENTED" as const } : l))
     );
+    try {
+      const res = await fetch(`/api/listings/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "RENTED" }),
+      });
+      if (!res.ok) {
+        // Revert on failure
+        setListings((prev) =>
+          prev.map((l) =>
+            l.id === id ? { ...l, status: "ACTIVE" as const } : l
+          )
+        );
+      }
+    } catch {
+      setListings((prev) =>
+        prev.map((l) =>
+          l.id === id ? { ...l, status: "ACTIVE" as const } : l
+        )
+      );
+    }
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
+    // Optimistic remove
     setListings((prev) => prev.filter((l) => l.id !== id));
+    try {
+      const res = await fetch(`/api/listings/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        // Revert — refetch
+        fetchListings({ search, status, roomType, sort });
+      }
+    } catch {
+      fetchListings({ search, status, roomType, sort });
+    }
   }
+
+  const showSkeleton = isLoading || isPending;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-foreground">
@@ -217,13 +269,20 @@ export default function MyListingsPage() {
           />
         </div>
 
+        {/* Error state */}
+        {error && !showSkeleton && (
+          <div className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">
+            {error}
+          </div>
+        )}
+
         {/* Results count */}
-        {!isLoading && (
+        {!showSkeleton && !error && (
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground/60">
-              {filteredListings.length === 0
+              {listings.length === 0
                 ? "No listings match your filters"
-                : `${filteredListings.length} listing${filteredListings.length !== 1 ? "s" : ""} found`}
+                : `${listings.length} listing${listings.length !== 1 ? "s" : ""} found`}
             </p>
             {(search || status !== "ALL" || roomType !== "ALL") && (
               <button
@@ -242,15 +301,15 @@ export default function MyListingsPage() {
         )}
 
         {/* Content */}
-        {isLoading ? (
+        {showSkeleton ? (
           <ListingsGridSkeleton count={6} />
-        ) : filteredListings.length === 0 ? (
+        ) : listings.length === 0 && !error ? (
           <div className="grid grid-cols-1">
             <EmptyState />
           </div>
         ) : (
           <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredListings.map((listing) => (
+            {listings.map((listing) => (
               <ListingCard
                 key={listing.id}
                 listing={listing}

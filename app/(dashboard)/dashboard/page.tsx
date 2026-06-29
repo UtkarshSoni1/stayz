@@ -1,5 +1,6 @@
 import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { getDashboardSummary } from "@/lib/dashboard-service";
 import {
   Home,
   PlusCircle,
@@ -9,7 +10,7 @@ import {
   MapPin,
   Star,
   TrendingUp,
-  Calendar,
+  KeyRound,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -21,6 +22,10 @@ export default async function DashboardPage() {
   }
 
   const user = session.user;
+
+  // Fetch real summary — server component, no waterfall
+  const summary = await getDashboardSummary(user.id);
+
   const initials = user.name
     ? user.name
         .split(" ")
@@ -29,6 +34,37 @@ export default async function DashboardPage() {
         .toUpperCase()
         .slice(0, 2)
     : user.email?.[0].toUpperCase() ?? "U";
+
+  const stats = [
+    {
+      label: "Total Listings",
+      value: String(summary.total),
+      icon: Home,
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+    },
+    {
+      label: "Active Listings",
+      value: String(summary.active),
+      icon: TrendingUp,
+      color: "text-green-500",
+      bg: "bg-green-500/10",
+    },
+    {
+      label: "Avg. Rating",
+      value: summary.avgRating !== null ? String(summary.avgRating) : "—",
+      icon: Star,
+      color: "text-yellow-500",
+      bg: "bg-yellow-500/10",
+    },
+    {
+      label: "Rented Out",
+      value: String(summary.rented),
+      icon: KeyRound,
+      color: "text-purple-500",
+      bg: "bg-purple-500/10",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,6 +84,9 @@ export default async function DashboardPage() {
             </Link>
             <Link href="/listings" className="text-muted-foreground hover:text-primary transition-colors">
               Browse
+            </Link>
+            <Link href="/my-listings" className="text-muted-foreground hover:text-primary transition-colors">
+              My Listings
             </Link>
             <Link href="/add-listing" className="text-muted-foreground hover:text-primary transition-colors">
               List a Property
@@ -100,14 +139,9 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid — real data */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Total Listings", value: "0", icon: Home, color: "text-blue-500", bg: "bg-blue-500/10" },
-            { label: "Total Bookings", value: "0", icon: Calendar, color: "text-green-500", bg: "bg-green-500/10" },
-            { label: "Avg. Rating", value: "—", icon: Star, color: "text-yellow-500", bg: "bg-yellow-500/10" },
-            { label: "Profile Views", value: "0", icon: TrendingUp, color: "text-purple-500", bg: "bg-purple-500/10" },
-          ].map((stat) => (
+          {stats.map((stat) => (
             <div key={stat.label} className="bg-card border rounded-xl p-4 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
@@ -116,6 +150,20 @@ export default async function DashboardPage() {
                 </div>
               </div>
               <p className="text-2xl font-bold">{stat.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Extra stats row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {[
+            { label: "Draft Listings", value: summary.draft },
+            { label: "Total Reviews", value: summary.totalReviews },
+            { label: "Total Saves", value: summary.totalSaves },
+          ].map((item) => (
+            <div key={item.label} className="bg-card border rounded-xl p-4">
+              <p className="text-sm text-muted-foreground">{item.label}</p>
+              <p className="text-2xl font-bold mt-1">{item.value}</p>
             </div>
           ))}
         </div>
@@ -129,7 +177,7 @@ export default async function DashboardPage() {
               <div className="flex flex-col gap-2">
                 {[
                   { label: "List a New Property", href: "/add-listing", icon: PlusCircle, desc: "Start earning today" },
-                  { label: "My Listings", href: "/dashboard/listings", icon: List, desc: "Manage your properties" },
+                  { label: "My Listings", href: "/my-listings", icon: List, desc: "Manage your properties" },
                   { label: "Browse Stays", href: "/listings", icon: MapPin, desc: "Find your next stay" },
                   { label: "Edit Profile", href: "/dashboard/profile", icon: User, desc: "Update your info" },
                 ].map((action) => (
@@ -151,22 +199,50 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* Recent Activity / Getting Started */}
+          {/* Getting Started / Account info */}
           <div className="lg:col-span-2">
             <div className="bg-card border rounded-xl p-5 h-full">
               <h2 className="font-semibold mb-4">Getting Started</h2>
               <div className="space-y-3">
                 {[
-                  { step: "1", title: "Complete your profile", desc: "Add a photo and bio to build trust with guests.", done: !!user.image },
-                  { step: "2", title: "List your first property", desc: "Add photos, amenities, and set your pricing.", done: false },
-                  { step: "3", title: "Get your first booking", desc: "Share your listing and start welcoming guests.", done: false },
+                  {
+                    step: "1",
+                    title: "Complete your profile",
+                    desc: "Add a photo and bio to build trust with guests.",
+                    done: !!user.image,
+                  },
+                  {
+                    step: "2",
+                    title: "List your first property",
+                    desc: "Add photos, amenities, and set your pricing.",
+                    done: summary.total > 0,
+                  },
+                  {
+                    step: "3",
+                    title: "Get your first booking",
+                    desc: "Share your listing and start welcoming guests.",
+                    done: summary.rented > 0,
+                  },
                 ].map((item) => (
-                  <div key={item.step} className={`flex items-start gap-4 p-4 rounded-lg border transition-colors ${item.done ? "bg-green-500/5 border-green-500/20" : "bg-muted/30"}`}>
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${item.done ? "bg-green-500 text-white" : "bg-muted-foreground/20 text-muted-foreground"}`}>
+                  <div
+                    key={item.step}
+                    className={`flex items-start gap-4 p-4 rounded-lg border transition-colors ${
+                      item.done ? "bg-green-500/5 border-green-500/20" : "bg-muted/30"
+                    }`}
+                  >
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                        item.done
+                          ? "bg-green-500 text-white"
+                          : "bg-muted-foreground/20 text-muted-foreground"
+                      }`}
+                    >
                       {item.done ? "✓" : item.step}
                     </div>
                     <div>
-                      <p className={`text-sm font-medium ${item.done ? "line-through text-muted-foreground" : ""}`}>{item.title}</p>
+                      <p className={`text-sm font-medium ${item.done ? "line-through text-muted-foreground" : ""}`}>
+                        {item.title}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
                     </div>
                   </div>
