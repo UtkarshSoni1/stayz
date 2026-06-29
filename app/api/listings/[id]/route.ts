@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import type { ApiErrorResponse, ApiSuccessResponse } from "@/types/listing";
+import { NextRequest, NextResponse } from "next/server"
+import { requireAuth } from "@/lib/auth-helpers"
+import { getListingById, updateListing, deleteListing } from "@/lib/listing-service"
+import { validateUpdateListing } from "@/lib/validations/listing"
+import type { ApiErrorResponse, ApiSuccessResponse } from "@/types/listing"
 
 // ─── GET /api/listings/[id] ────────────────────────────────────────────────────
 export async function GET(
@@ -9,33 +10,76 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const listing = await prisma.listing.findUnique({
-      where: { id },
-      include: {
-        images: { orderBy: { sortOrder: "asc" } },
-        amenities: { include: { amenity: true } },
-        owner: { select: { id: true, name: true, image: true } },
-      },
-    });
+    const { id } = await params
+    const listing = await getListingById(id)
 
     if (!listing) {
       return NextResponse.json<ApiErrorResponse>(
         { success: false, error: "Listing not found." },
         { status: 404 }
-      );
+      )
     }
 
     return NextResponse.json<ApiSuccessResponse<typeof listing>>({
       success: true,
       data: listing,
-    });
+    })
   } catch (err) {
-    console.error("[GET /api/listings/[id]]", err);
+    console.error("[GET /api/listings/[id]]", err)
     return NextResponse.json<ApiErrorResponse>(
       { success: false, error: "Failed to fetch listing." },
       { status: 500 }
-    );
+    )
+  }
+}
+
+// ─── PATCH /api/listings/[id] ─────────────────────────────────────────────────
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { user, error } = await requireAuth()
+    if (error) return error
+
+    let rawBody: unknown
+    try {
+      rawBody = await req.json()
+    } catch {
+      return NextResponse.json<ApiErrorResponse>(
+        { success: false, error: "Invalid JSON in request body." },
+        { status: 400 }
+      )
+    }
+
+    const { valid, fieldErrors } = validateUpdateListing(rawBody)
+    if (!valid) {
+      return NextResponse.json<ApiErrorResponse>(
+        { success: false, error: "Validation failed.", fieldErrors },
+        { status: 422 }
+      )
+    }
+
+    const { id } = await params
+    const result = await updateListing(id, user.id, rawBody as Record<string, unknown>)
+
+    if (!result.ok) {
+      return NextResponse.json<ApiErrorResponse>(
+        { success: false, error: result.message },
+        { status: result.status }
+      )
+    }
+
+    return NextResponse.json<ApiSuccessResponse<unknown>>(
+      { success: true, data: result.listing },
+      { status: 200 }
+    )
+  } catch (err) {
+    console.error("[PATCH /api/listings/[id]]", err)
+    return NextResponse.json<ApiErrorResponse>(
+      { success: false, error: "Failed to update listing." },
+      { status: 500 }
+    )
   }
 }
 
@@ -45,45 +89,28 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const { user, error } = await requireAuth()
+    if (error) return error
+
+    const { id } = await params
+    const result = await deleteListing(id, user.id, user.role)
+
+    if (!result.ok) {
       return NextResponse.json<ApiErrorResponse>(
-        { success: false, error: "Unauthorised." },
-        { status: 401 }
-      );
+        { success: false, error: result.message },
+        { status: result.status }
+      )
     }
 
-    const { id } = await params;
-    const listing = await prisma.listing.findUnique({
-      where: { id },
-      select: { ownerId: true },
-    });
-
-    if (!listing) {
-      return NextResponse.json<ApiErrorResponse>(
-        { success: false, error: "Listing not found." },
-        { status: 404 }
-      );
-    }
-
-    if (listing.ownerId !== session.user.id && session.user.role !== "ADMIN") {
-      return NextResponse.json<ApiErrorResponse>(
-        { success: false, error: "Forbidden." },
-        { status: 403 }
-      );
-    }
-
-    await prisma.listing.delete({ where: { id } });
-
-    return NextResponse.json<ApiSuccessResponse<null>>({
-      success: true,
-      data: null,
-    });
+    return NextResponse.json<ApiSuccessResponse<null>>(
+      { success: true, data: null },
+      { status: 200 }
+    )
   } catch (err) {
-    console.error("[DELETE /api/listings/[id]]", err);
+    console.error("[DELETE /api/listings/[id]]", err)
     return NextResponse.json<ApiErrorResponse>(
       { success: false, error: "Failed to delete listing." },
       { status: 500 }
-    );
+    )
   }
 }

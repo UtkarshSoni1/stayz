@@ -157,3 +157,75 @@ export function castPayload(body: Record<string, unknown>): CreateListingPayload
     status: body.status as "DRAFT" | "ACTIVE",
   }
 }
+
+// ─── Update Listing Validation (all fields optional) ──────────────────────────
+
+const VALID_STATUS_ALL = ["DRAFT", "ACTIVE", "RENTED"] as const
+
+export function validateUpdateListing(body: unknown): ValidationResult {
+  const errors: Record<string, string> = {}
+
+  if (!body || typeof body !== "object") {
+    return { valid: false, fieldErrors: { _: "Invalid request body" } }
+  }
+
+  const data = body as Record<string, unknown>
+
+  if (data.title !== undefined) {
+    if (typeof data.title !== "string" || !data.title.trim()) {
+      errors.title = "Title must be a non-empty string"
+    } else if (data.title.trim().length < 10) {
+      errors.title = "Title must be at least 10 characters"
+    } else if (data.title.trim().length > 120) {
+      errors.title = "Title must be 120 characters or fewer"
+    }
+  }
+
+  if (data.description !== undefined) {
+    if (typeof data.description !== "string" || data.description.trim().length < 30) {
+      errors.description = "Description must be at least 30 characters"
+    }
+  }
+
+  if (data.monthlyRent !== undefined) {
+    const rent = Number(data.monthlyRent)
+    if (isNaN(rent) || rent <= 0) errors.monthlyRent = "Monthly rent must be a positive number"
+  }
+
+  if (data.pincode !== undefined && data.pincode !== "") {
+    if (!/^\d{6}$/.test(String(data.pincode))) {
+      errors.pincode = "Enter a valid 6-digit pincode"
+    }
+  }
+
+  if (data.roomType !== undefined && !VALID_ROOM_TYPES.includes(data.roomType as never)) {
+    errors.roomType = "Invalid room type"
+  }
+
+  if (data.furnishing !== undefined && !VALID_FURNISHING.includes(data.furnishing as never)) {
+    errors.furnishing = "Invalid furnishing type"
+  }
+
+  if (data.genderPreference !== undefined && !VALID_GENDER.includes(data.genderPreference as never)) {
+    errors.genderPreference = "Invalid gender preference"
+  }
+
+  if (data.status !== undefined && !VALID_STATUS_ALL.includes(data.status as never)) {
+    errors.status = "Status must be DRAFT, ACTIVE, or RENTED"
+  }
+
+  if (data.amenities !== undefined) {
+    if (!Array.isArray(data.amenities)) {
+      errors.amenities = "Amenities must be an array"
+    } else {
+      const invalid = (data.amenities as unknown[]).filter(
+        (a) => typeof a !== "string" || !VALID_AMENITIES.includes(a as never)
+      )
+      if (invalid.length > 0) {
+        errors.amenities = `Unknown amenities: ${invalid.join(", ")}`
+      }
+    }
+  }
+
+  return { valid: Object.keys(errors).length === 0, fieldErrors: errors }
+}

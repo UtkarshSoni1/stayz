@@ -3,6 +3,7 @@
 "use client";
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export function ThemeProvider({
   children,
@@ -15,7 +16,9 @@ export function ThemeProvider({
       defaultTheme="dark"
       enableSystem
     >
-      {children}
+      <TooltipProvider delayDuration={200}>
+        {children}
+      </TooltipProvider>
     </NextThemesProvider>
   );
 }

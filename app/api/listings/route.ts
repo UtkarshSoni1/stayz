@@ -79,6 +79,7 @@ export async function POST(req: NextRequest) {
         furnishing: payload.furnishing,
         genderPreference: payload.genderPreference,
         isAvailable: payload.status === "ACTIVE",
+        status: payload.status === "ACTIVE" ? ("ACTIVE" as const) : ("DRAFT" as const),
 
         // Connect amenities via junction table
         amenities: amenityIds.length > 0

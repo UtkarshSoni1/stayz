@@ -69,6 +69,12 @@ enum Role {
   ADMIN
 }
 
+enum ListingStatus {
+  ACTIVE
+  DRAFT
+  RENTED
+}
+
 // ─── New Enums ───────────────────────────────────────────────────────────────
 
 enum RoomType {
@@ -106,7 +112,8 @@ model Listing {
   roomType         RoomType
   genderPreference GenderPreference @default(ANY)
   furnishing       Furnishing
-  isAvailable      Boolean          @default(true)
+  status           ListingStatus    @default(DRAFT)
+  isAvailable      Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
