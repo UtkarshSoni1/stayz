@@ -70,10 +70,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+      }
+      // On session update trigger, re-fetch role from DB so role promotions
+      // (USER → OWNER) are immediately reflected without a full re-login
+      if (trigger === "update" && token.id) {
+        const freshUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true },
+        });
+        if (freshUser) {
+          token.role = freshUser.role;
+        }
       }
       return token;
     },

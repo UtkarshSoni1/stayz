@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
+import { signIn, getSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -15,6 +15,17 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+
+function getDashboardForRole(role?: string | null): string {
+  switch (role) {
+    case "ADMIN":
+      return "/admin/dashboard"
+    case "OWNER":
+      return "/owner/dashboard"
+    default:
+      return "/user/dashboard"
+  }
+}
 
 export function LoginForm({
   className,
@@ -39,14 +50,17 @@ export function LoginForm({
       redirect: false,
     })
 
-    setLoading(false)
-
     if (result?.error) {
+      setLoading(false)
       setError("Invalid email or password. Please try again.")
-    } else {
-      router.push("/dashboard")
-      router.refresh()
+      return
     }
+
+    // Read the updated session to get the user role
+    const session = await getSession()
+    const role = session?.user?.role
+    router.push(getDashboardForRole(role))
+    router.refresh()
   }
 
   return (
@@ -102,7 +116,7 @@ export function LoginForm({
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                  onClick={() => signIn("google", { callbackUrl: "/user/dashboard" })}
                 >
                   Continue with Google
                 </Button>

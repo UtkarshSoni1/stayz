@@ -141,7 +141,7 @@ export function SignupForm({
   <Button
     variant="outline"
     type="button"
-    onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+    onClick={() => signIn("google", { callbackUrl: "/user/dashboard" })}
   >
     Continue with Google
   </Button>

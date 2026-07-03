@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getDashboardSummary } from "@/lib/dashboard-service";
@@ -7,7 +9,6 @@ import {
   PlusCircle,
   List,
   User,
-  LogOut,
   MapPin,
   Star,
   TrendingUp,
@@ -15,7 +16,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export default async function DashboardPage() {
+export const metadata = {
+  title: "Owner Dashboard | StayZ",
+  description: "Manage your listings, track performance, and grow your rental business.",
+};
+
+export default async function OwnerDashboardPage() {
   const session = await auth();
 
   if (!session?.user) {
@@ -119,10 +125,10 @@ export default async function DashboardPage() {
               <h2 className="font-semibold mb-4">Quick Actions</h2>
               <div className="flex flex-col gap-2">
                 {[
-                  { label: "List a New Property", href: "/add-listing", icon: PlusCircle, desc: "Start earning today" },
-                  { label: "My Listings", href: "/my-listings", icon: List, desc: "Manage your properties" },
+                  { label: "List a New Property", href: "/owner/add-listing", icon: PlusCircle, desc: "Start earning today" },
+                  { label: "My Listings", href: "/owner/my-listings", icon: List, desc: "Manage your properties" },
                   { label: "Browse Stays", href: "/listings", icon: MapPin, desc: "Find your next stay" },
-                  { label: "Edit Profile", href: "/dashboard/profile", icon: User, desc: "Update your info" },
+                  { label: "Edit Profile", href: "/owner/profile", icon: User, desc: "Update your info" },
                 ].map((action) => (
                   <Link
                     key={action.href}
@@ -201,7 +207,7 @@ export default async function DashboardPage() {
                     {user.email}
                   </span>
                   <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize">
-                    {user.role?.toLowerCase() ?? "user"}
+                    {user.role?.toLowerCase() ?? "owner"}
                   </span>
                 </div>
               </div>

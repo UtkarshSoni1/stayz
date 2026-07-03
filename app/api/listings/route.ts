@@ -103,19 +103,21 @@ export async function POST(req: NextRequest) {
 
     // 7. Optionally promote user to OWNER role on first listing
     //    Do this without failing the listing creation if it errors
+    let roleUpdated = false
     try {
       if (session.user.role === "USER") {
         await prisma.user.update({
           where: { id: session.user.id },
           data: { role: "OWNER" },
         })
+        roleUpdated = true
       }
     } catch {
       // Non-critical — ignore role promotion failure
     }
 
-    return NextResponse.json<ApiSuccessResponse<typeof listing>>(
-      { success: true, data: listing },
+    return NextResponse.json<ApiSuccessResponse<typeof listing & { roleUpdated: boolean }>>(
+      { success: true, data: { ...listing, roleUpdated } },
       { status: 201 }
     )
   } catch (err) {
