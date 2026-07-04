@@ -2,8 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Home, ArrowLeft, CheckCircle2 } from "lucide-react"
-import Link from "next/link"
+import { CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppNavBar } from "@/components/navbar/AppNavBar"
 import { PropertyDetails } from "@/components/add-listing/property-details"
@@ -223,17 +222,26 @@ export default function AddListingPage() {
         return
       }
 
-      // Success — show toast then navigate to the new listing
-      const successJson = json as ApiSuccessResponse<{ id: string }>
+      // Success — show toast then navigate
+      const successJson = json as ApiSuccessResponse<{ id: string; roleUpdated?: boolean }>
       showToast(
         publishStatus === "ACTIVE"
           ? "🎉 Listing published successfully!"
           : "📝 Draft saved.",
         "success"
       )
-      setTimeout(() => {
-        router.push(`/listings/${successJson.data.id}`)
-      }, 1200)
+
+      if (successJson.data.roleUpdated) {
+        // User was promoted to OWNER — refresh the session then go to owner dashboard
+        showToast("🚀 You're now an Owner! Redirecting to your dashboard…", "success")
+        setTimeout(() => {
+          router.push("/owner/dashboard")
+        }, 1500)
+      } else {
+        setTimeout(() => {
+          router.push(`/listings/${successJson.data.id}`)
+        }, 1200)
+      }
     } catch {
       showToast("Network error. Please check your connection and try again.", "error")
     } finally {

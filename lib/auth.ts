@@ -28,7 +28,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/login",
   },
   providers: [
-    Google,
+    Google({
+      // Force the account chooser every time so users can switch accounts
+      authorization: {
+        params: { prompt: "select_account" },
+      },
+    }),
     // Google automatically reads AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET from env
     Credentials({
       name: "credentials",
@@ -70,10 +75,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+
+    async jwt({ token, user, account, trigger }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        // For OAuth providers (e.g. Google), the Auth.js user object does not
+        // carry the DB role — fetch it explicitly on first sign-in.
+        if (account?.provider === "google" && user.id) {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { role: true },
+          });
+          token.role = dbUser?.role ?? "USER";
+        } else {
+          token.role = user.role;
+        }
+      }
+      // On session update trigger, re-fetch role from DB so role promotions
+      // (USER → OWNER) are immediately reflected without a full re-login
+      if (trigger === "update" && token.id) {
+        const freshUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true },
+        });
+        if (freshUser) {
+          token.role = freshUser.role;
+        }
       }
       return token;
     },

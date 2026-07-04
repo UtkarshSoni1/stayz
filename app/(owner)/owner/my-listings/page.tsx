@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback, useTransition } from "react";
 import Link from "next/link";
-import { PlusCircle, LayoutGrid } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppNavBar } from "@/components/navbar/AppNavBar";
 import { SummaryCards } from "@/components/my-listings/summary-cards";

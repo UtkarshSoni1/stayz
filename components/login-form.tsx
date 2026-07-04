@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -16,11 +15,13 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
+/** All role-based routing is handled by /auth/redirect (server component). */
+const AUTH_REDIRECT = "/auth/redirect"
+
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -33,20 +34,24 @@ export function LoginForm({
     const email = formData.get("email") as string
     const password = formData.get("password") as string
 
+    // redirect: true (default) — Auth.js will follow redirectTo on success.
+    // On wrong credentials Auth.js throws a CredentialsSignin error which
+    // propagates as a rejected promise; we catch it to show the inline error.
     const result = await signIn("credentials", {
       email,
       password,
       redirect: false,
     })
 
-    setLoading(false)
-
     if (result?.error) {
+      setLoading(false)
       setError("Invalid email or password. Please try again.")
-    } else {
-      router.push("/dashboard")
-      router.refresh()
+      return
     }
+
+    // Success — navigate to the redirect hub which reads session and decides
+    // the correct dashboard.
+    window.location.href = AUTH_REDIRECT
   }
 
   return (
@@ -102,7 +107,13 @@ export function LoginForm({
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                  onClick={() =>
+                    signIn(
+                      "google",
+                      { redirectTo: AUTH_REDIRECT },
+                      { prompt: "select_account" },
+                    )
+                  }
                 >
                   Continue with Google
                 </Button>

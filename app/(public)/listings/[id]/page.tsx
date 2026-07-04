@@ -385,7 +385,7 @@ export default async function ListingDetailPage({
 
                 {isOwner && (
                   <Link
-                    href="/dashboard"
+                    href="/owner/dashboard"
                     id="manage-listing-btn"
                     className="flex w-full items-center justify-center rounded-xl border px-4 py-3 text-sm font-semibold text-foreground transition hover:bg-muted/40"
                   >

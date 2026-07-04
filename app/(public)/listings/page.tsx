@@ -10,6 +10,7 @@ import {
   ROOM_TYPE_LABELS,
   GENDER_LABELS,
 } from "@/components/listings/listingConfig";
+import { Home } from "lucide-react";
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
 export const metadata = {
