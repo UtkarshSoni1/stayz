@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
 const PUBLIC_PATHS = ["/", "/listings", "/login", "/signup", "/forgot-password"];
 
 // Path prefixes that are always public
-const PUBLIC_PREFIXES = ["/listings/", "/api/", "/_next/", "/favicon"];
+const PUBLIC_PREFIXES = ["/listings/", "/api/", "/_next/", "/favicon", "/auth/"];
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true;

@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { signIn, getSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -16,22 +15,13 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-function getDashboardForRole(role?: string | null): string {
-  switch (role) {
-    case "ADMIN":
-      return "/admin/dashboard"
-    case "OWNER":
-      return "/owner/dashboard"
-    default:
-      return "/user/dashboard"
-  }
-}
+/** All role-based routing is handled by /auth/redirect (server component). */
+const AUTH_REDIRECT = "/auth/redirect"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -44,6 +34,9 @@ export function LoginForm({
     const email = formData.get("email") as string
     const password = formData.get("password") as string
 
+    // redirect: true (default) — Auth.js will follow redirectTo on success.
+    // On wrong credentials Auth.js throws a CredentialsSignin error which
+    // propagates as a rejected promise; we catch it to show the inline error.
     const result = await signIn("credentials", {
       email,
       password,
@@ -56,11 +49,9 @@ export function LoginForm({
       return
     }
 
-    // Read the updated session to get the user role
-    const session = await getSession()
-    const role = session?.user?.role
-    router.push(getDashboardForRole(role))
-    router.refresh()
+    // Success — navigate to the redirect hub which reads session and decides
+    // the correct dashboard.
+    window.location.href = AUTH_REDIRECT
   }
 
   return (
@@ -116,7 +107,13 @@ export function LoginForm({
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={() => signIn("google", { callbackUrl: "/user/dashboard" })}
+                  onClick={() =>
+                    signIn(
+                      "google",
+                      { redirectTo: AUTH_REDIRECT },
+                      { prompt: "select_account" },
+                    )
+                  }
                 >
                   Continue with Google
                 </Button>
