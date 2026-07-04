@@ -5,4 +5,5 @@
 //
 // For client-side theme toggling, use:
 //   import { useTheme } from "@wrksz/themes/client"
+
 export { ThemeProvider } from "@wrksz/themes/next";
