@@ -128,3 +128,34 @@
     @apply font-sans;
   }
 }
+
+/* Listing detail — stitch tokens & utilities */
+@theme inline {
+  --color-on-surface: #e2e1ee;
+  --color-on-surface-variant: #c3c6d7;
+  --color-outline-variant: #434655;
+  --color-outline: #8d90a0;
+  --color-surface-container: #1d1f28;
+  --color-surface-container-lowest: #0c0e16;
+  --color-primary-container: #2463eb;
+  --color-on-primary-container: #eeefff;
+  --spacing-container-max: 1440px;
+  --spacing-margin-mobile: 20px;
+  --spacing-margin-desktop: 64px;
+  --spacing-section-gap: 160px;
+  --spacing-gutter: 24px;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+}
+
+.glass-card {
+  background: rgba(17, 17, 17, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-zoom:hover img {
+  transform: scale(1.05);
+}

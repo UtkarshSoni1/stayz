@@ -8,21 +8,44 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// User / Auth
+// ─────────────────────────────────────────────────────────────────────────────
+
 model User {
-  id            String         @id @default(cuid())
-  name          String?
-  email         String         @unique
-  password      String?
-  image         String?
-  role          Role           @default(USER)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  emailVerified DateTime?
-  accounts      Account[]
-  listings      Listing[]      @relation("UserListings")
-  reviews       Review[]       @relation("UserReviews")
-  savedListings SavedListing[] @relation("UserSavedListings")
-  sessions      Session[]
+  id                 String               @id @default(cuid())
+  name               String?
+  email              String               @unique
+  password           String?
+  image              String?
+  role               Role                 @default(USER)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  emailVerified      DateTime?
+
+  // ── Host-facing profile fields ──────────────────────────────────────────────
+  responseRate       String?              // e.g. "100%"
+  responseTimeLabel  String?              // e.g. "within an hour"
+  isSuperhost        Boolean              @default(false)
+  yearsHosting       Int?
+  joinedYear         Int?                 // year the account was created (display)
+
+  accounts           Account[]
+  listings           Listing[]            @relation("UserListings")
+  reviews            Review[]             @relation("UserReviews")
+  savedListings      SavedListing[]       @relation("UserSavedListings")
+  sessions           Session[]
+  hostPersonalDetails HostPersonalDetail[] @relation("UserHostDetails")
+}
+
+model HostPersonalDetail {
+  id     String @id @default(cuid())
+  userId String
+  icon   String          // material-symbols icon name, e.g. "cake"
+  text   String
+  user   User   @relation("UserHostDetails", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Account {
@@ -59,17 +82,38 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Listing
+// ─────────────────────────────────────────────────────────────────────────────
+
 model Listing {
   id               String           @id @default(cuid())
   ownerId          String
   title            String
   description      String
+  descriptionExtended String?       // "Show more" expanded text on the detail page
+  propertyType     String           @default("Entire apartment")
   city             String
   locality         String
   address          String?
   pincode          String?
-  monthlyRent      Int
+
+  // ── Pricing ─────────────────────────────────────────────────────────────────
+  monthlyRent      Int              // core rental-platform field (owner dashboard)
   deposit          Int?
+  pricePerNight    Int?             // Airbnb-style nightly rate shown on detail page
+
+  // ── Capacity (detail page header) ────────────────────────────────────────────
+  guests           Int              @default(1)
+  bedrooms         Int              @default(1)
+  beds             Int              @default(1)
+  bathrooms        Int              @default(1)
+
+  // ── Meta / map ───────────────────────────────────────────────────────────────
+  mapLat           Float?
+  mapLng           Float?
+  mapImageUrl      String?
+
   roomType         RoomType
   genderPreference GenderPreference @default(ANY)
   furnishing       Furnishing
@@ -77,11 +121,25 @@ model Listing {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   status           ListingStatus    @default(DRAFT)
-  owner            User             @relation("UserListings", fields: [ownerId], references: [id], onDelete: Cascade)
-  amenities        ListingAmenity[]
-  images           ListingImage[]
-  reviews          Review[]         @relation("ListingReviews")
-  saves            SavedListing[]   @relation("ListingSaves")
+
+  // ── Denormalised review aggregates (recomputed in $transaction on review write) ──
+  reviewCount      Int              @default(0)
+  avgRating        Float            @default(0)
+  avgCleanliness   Float            @default(0)
+  avgAccuracy      Float            @default(0)
+  avgCheckIn       Float            @default(0)
+  avgCommunication Float            @default(0)
+  avgLocation      Float            @default(0)
+  avgValue         Float            @default(0)
+
+  owner                User                  @relation("UserListings", fields: [ownerId], references: [id], onDelete: Cascade)
+  amenities            ListingAmenity[]
+  images               ListingImage[]
+  reviews              Review[]              @relation("ListingReviews")
+  saves                SavedListing[]        @relation("ListingSaves")
+  highlights           Highlight[]           @relation("ListingHighlights")
+  sleepingArrangements SleepingArrangement[] @relation("ListingSleepingArrangements")
+  thingsToKnow         ThingToKnow[]         @relation("ListingThingsToKnow")
 
   @@index([city, locality])
   @@index([monthlyRent])
@@ -89,21 +147,70 @@ model Listing {
   @@index([isAvailable])
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Listing sub-models
+// ─────────────────────────────────────────────────────────────────────────────
+
 model ListingImage {
   id        String   @id @default(cuid())
   listingId String
   url       String
+  alt       String?             // descriptive alt text for accessibility / SEO
   publicId  String?
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
 }
 
+/// A curated highlight card (Self check-in, Great location, etc.)
+model Highlight {
+  id          String  @id @default(cuid())
+  listingId   String
+  icon        String              // material-symbols icon name
+  title       String
+  description String
+  sortOrder   Int     @default(0)
+  listing     Listing @relation("ListingHighlights", fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+/// Sleeping arrangement entry shown in the "Where you'll sleep" section
+model SleepingArrangement {
+  id          String  @id @default(cuid())
+  listingId   String
+  icon        String              // e.g. "king_bed"
+  name        String              // e.g. "Bedroom"
+  description String              // e.g. "1 king bed"
+  sortOrder   Int     @default(0)
+  listing     Listing @relation("ListingSleepingArrangements", fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+/// House rules / cancellation / check-in policy shown in "Things to know"
+model ThingToKnow {
+  id        String  @id @default(cuid())
+  listingId String
+  icon      String              // material-symbols icon name
+  title     String
+  content   String
+  sortOrder Int     @default(0)
+  listing   Listing @relation("ListingThingsToKnow", fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Amenities (global catalogue + per-listing link)
+// ─────────────────────────────────────────────────────────────────────────────
+
 model Amenity {
-  id       String           @id @default(cuid())
-  name     String           @unique
-  icon     String?
-  listings ListingAmenity[]
+  id          String           @id @default(cuid())
+  name        String           @unique
+  icon        String?          // material-symbols icon name
+  description String?          // short description shown on detail page
+  listings    ListingAmenity[]
 }
 
 model ListingAmenity {
@@ -115,6 +222,10 @@ model ListingAmenity {
   @@id([listingId, amenityId])
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Saves / bookmarks
+// ─────────────────────────────────────────────────────────────────────────────
+
 model SavedListing {
   userId    String
   listingId String
@@ -125,19 +236,35 @@ model SavedListing {
   @@id([userId, listingId])
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Reviews
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Per-review category scores (1–5). The listing-level averages are denormalised
+/// onto Listing.avg* for fast page reads; these raw scores are the source of truth.
 model Review {
-  id        String   @id @default(cuid())
-  listingId String
-  userId    String
-  rating    Int
-  comment   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  listing   Listing  @relation("ListingReviews", fields: [listingId], references: [id], onDelete: Cascade)
-  user      User     @relation("UserReviews", fields: [userId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  listingId     String
+  userId        String
+  rating        Int                  // overall 1–5
+  cleanliness   Int      @default(0)
+  accuracy      Int      @default(0)
+  checkIn       Int      @default(0)
+  communication Int      @default(0)
+  location      Int      @default(0)
+  value         Int      @default(0)
+  comment       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  listing       Listing  @relation("ListingReviews", fields: [listingId], references: [id], onDelete: Cascade)
+  user          User     @relation("UserReviews", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([listingId, userId])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────────
 
 enum Role {
   USER

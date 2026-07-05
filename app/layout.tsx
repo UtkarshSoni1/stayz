@@ -34,7 +34,7 @@ export default async function RootLayout({
       lang="en"
       suppressHydrationWarning
       className={cn(
-        "h-full",
+        "dark h-full",
         "antialiased",
         geistSans.variable,
         geistMono.variable,
@@ -42,6 +42,12 @@ export default async function RootLayout({
         inter.variable
       )}
     >
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <SessionProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
