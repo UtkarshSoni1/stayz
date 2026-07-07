@@ -91,20 +91,6 @@ export function validateCreateListing(body: unknown): ValidationResult {
     errors.genderPreference = "Please select a valid gender preference"
   }
 
-  // ── availableFrom ────────────────────────────────────────────────────────────
-  if (!data.availableFrom || typeof data.availableFrom !== "string") {
-    errors.availableFrom = "Availability date is required"
-  } else if (isNaN(Date.parse(data.availableFrom))) {
-    errors.availableFrom = "Enter a valid date"
-  }
-
-  // ── phone ────────────────────────────────────────────────────────────────────
-  if (!data.phone || typeof data.phone !== "string" || !data.phone.trim()) {
-    errors.phone = "Phone number is required"
-  } else if (!/^\d{10}$/.test(data.phone.trim())) {
-    errors.phone = "Enter a valid 10-digit phone number"
-  }
-
   // ── amenities (optional, validate each entry) ────────────────────────────────
   if (data.amenities !== undefined) {
     if (!Array.isArray(data.amenities)) {
@@ -142,17 +128,11 @@ export function castPayload(body: Record<string, unknown>): CreateListingPayload
     locality: (body.locality as string).trim(),
     address: body.address ? (body.address as string).trim() : undefined,
     pincode: (body.pincode as string).trim(),
-    latitude: body.latitude ? Number(body.latitude) : undefined,
-    longitude: body.longitude ? Number(body.longitude) : undefined,
     monthlyRent: Number(body.monthlyRent),
     securityDeposit: body.securityDeposit ? Number(body.securityDeposit) : undefined,
     roomType: body.roomType as CreateListingPayload["roomType"],
     furnishing: body.furnishing as CreateListingPayload["furnishing"],
     genderPreference: body.genderPreference as CreateListingPayload["genderPreference"],
-    totalSeats: body.totalSeats ? Number(body.totalSeats) : undefined,
-    vacantSeats: body.vacantSeats ? Number(body.vacantSeats) : undefined,
-    availableFrom: body.availableFrom as string,
-    phone: (body.phone as string).trim(),
     amenities: Array.isArray(body.amenities) ? (body.amenities as string[]) : [],
     status: body.status as "DRAFT" | "ACTIVE",
   }

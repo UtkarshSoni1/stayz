@@ -3,13 +3,11 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { CheckCircle2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { AppNavBar } from "@/components/navbar/AppNavBar"
 import { PropertyDetails } from "@/components/add-listing/property-details"
 import { LocationSection } from "@/components/add-listing/location-section"
 import { PricingSection } from "@/components/add-listing/pricing-section"
 import { RoomDetails } from "@/components/add-listing/room-details"
-import { ContactSection } from "@/components/add-listing/contact-section"
 import { AmenitiesSection } from "@/components/add-listing/amenities-section"
 import { ImageUpload } from "@/components/add-listing/image-upload"
 import { ListingStatus } from "@/components/add-listing/listing-status"
@@ -17,6 +15,8 @@ import { ActionBar } from "@/components/add-listing/action-bar"
 import type { ApiErrorResponse, ApiSuccessResponse } from "@/types/listing"
 
 // --- Types ---
+// Fields are derived from the Prisma Listing model only.
+// Backend-managed fields (id, ownerId, createdAt, updatedAt, isAvailable) are excluded.
 interface FormData {
   // Property Details
   title: string
@@ -24,24 +24,17 @@ interface FormData {
   // Location
   city: string
   locality: string
-  address: string
-  pincode: string
-  latitude: string
-  longitude: string
+  address: string   // Listing.address  (String?)
+  pincode: string   // Listing.pincode  (String?)
   // Pricing
   monthlyRent: string
-  securityDeposit: string
+  securityDeposit: string  // maps to Listing.deposit (Int?)
   // Room Details
-  roomType: string
-  furnishing: string
-  genderPreference: string
-  totalSeats: string
-  vacantSeats: string
-  availableFrom: string
-  // Contact
-  phone: string
+  roomType: string         // Listing.roomType  (RoomType)
+  furnishing: string       // Listing.furnishing (Furnishing)
+  genderPreference: string // Listing.genderPreference (GenderPreference)
   // Status
-  status: "DRAFT" | "ACTIVE"
+  status: "DRAFT" | "ACTIVE" // Listing.status (ListingStatus)
 }
 
 type FormErrors = Partial<Record<keyof FormData | "images", string>>
@@ -67,10 +60,6 @@ function validateForm(data: FormData, _images: File[]): FormErrors {
   if (!data.roomType) errors.roomType = "Please select a room type"
   if (!data.furnishing) errors.furnishing = "Please select furnishing type"
   if (!data.genderPreference) errors.genderPreference = "Please select gender preference"
-  if (!data.availableFrom) errors.availableFrom = "Please select availability date"
-
-  if (!data.phone.trim()) errors.phone = "Phone number is required"
-  else if (!/^\d{10}$/.test(data.phone)) errors.phone = "Enter a valid 10-digit phone number"
 
   return errors
 }
@@ -83,8 +72,6 @@ const FIELD_ID_MAP: Partial<Record<keyof FormData, string>> = {
   locality: "locality",
   pincode: "pincode",
   monthlyRent: "monthly-rent",
-  phone: "phone-number",
-  availableFrom: "available-from",
 }
 
 // --- Toast ---
@@ -125,17 +112,11 @@ export default function AddListingPage() {
     locality: "",
     address: "",
     pincode: "",
-    latitude: "",
-    longitude: "",
     monthlyRent: "",
     securityDeposit: "",
     roomType: "",
     furnishing: "",
     genderPreference: "",
-    totalSeats: "",
-    vacantSeats: "",
-    availableFrom: "",
-    phone: "",
     status: "DRAFT",
   })
 
@@ -181,6 +162,7 @@ export default function AddListingPage() {
 
     setIsLoading(true)
     try {
+      // Payload contains only fields that exist in the Listing schema
       const res = await fetch("/api/listings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -191,17 +173,11 @@ export default function AddListingPage() {
           locality: submitData.locality.trim(),
           address: submitData.address.trim() || undefined,
           pincode: submitData.pincode.trim(),
-          latitude: submitData.latitude ? Number(submitData.latitude) : undefined,
-          longitude: submitData.longitude ? Number(submitData.longitude) : undefined,
           monthlyRent: Number(submitData.monthlyRent),
           securityDeposit: submitData.securityDeposit ? Number(submitData.securityDeposit) : undefined,
           roomType: submitData.roomType,
           furnishing: submitData.furnishing,
           genderPreference: submitData.genderPreference,
-          totalSeats: submitData.totalSeats ? Number(submitData.totalSeats) : undefined,
-          vacantSeats: submitData.vacantSeats ? Number(submitData.vacantSeats) : undefined,
-          availableFrom: submitData.availableFrom,
-          phone: submitData.phone.trim(),
           amenities,
           status: publishStatus,
         }),
@@ -249,19 +225,20 @@ export default function AddListingPage() {
     }
   }
 
-  // Section data slices
+  // Section data slices — only schema-valid fields
   const propertyData = { title: formData.title, description: formData.description }
   const locationData = {
-    city: formData.city, locality: formData.locality, address: formData.address,
-    pincode: formData.pincode, latitude: formData.latitude, longitude: formData.longitude,
+    city: formData.city,
+    locality: formData.locality,
+    address: formData.address,
+    pincode: formData.pincode,
   }
   const pricingData = { monthlyRent: formData.monthlyRent, securityDeposit: formData.securityDeposit }
   const roomData = {
-    roomType: formData.roomType, furnishing: formData.furnishing,
-    genderPreference: formData.genderPreference, totalSeats: formData.totalSeats,
-    vacantSeats: formData.vacantSeats, availableFrom: formData.availableFrom,
+    roomType: formData.roomType,
+    furnishing: formData.furnishing,
+    genderPreference: formData.genderPreference,
   }
-  const contactData = { phone: formData.phone }
 
   return (
     <div className="min-h-screen bg-background">
@@ -302,9 +279,6 @@ export default function AddListingPage() {
 
           <SectionDivider label="Room Details" />
           <RoomDetails data={roomData} onChange={handleChange} errors={errors} />
-
-          <SectionDivider label="Contact" />
-          <ContactSection data={contactData} onChange={handleChange} errors={errors} />
 
           <SectionDivider label="Amenities" />
           <AmenitiesSection selected={amenities} onToggle={handleAmenityToggle} />
