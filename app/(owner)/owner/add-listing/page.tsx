@@ -9,7 +9,7 @@ import { LocationSection } from "@/components/add-listing/location-section"
 import { PricingSection } from "@/components/add-listing/pricing-section"
 import { RoomDetails } from "@/components/add-listing/room-details"
 import { AmenitiesSection } from "@/components/add-listing/amenities-section"
-import { ImageUpload } from "@/components/add-listing/image-upload"
+import { ImageUpload, type UploadedImage } from "@/components/add-listing/image-upload"
 import { ListingStatus } from "@/components/add-listing/listing-status"
 import { ActionBar } from "@/components/add-listing/action-bar"
 import type { ApiErrorResponse, ApiSuccessResponse } from "@/types/listing"
@@ -40,7 +40,10 @@ interface FormData {
 type FormErrors = Partial<Record<keyof FormData | "images", string>>
 
 // --- Client-side pre-validation (UX) ---
-function validateForm(data: FormData, _images: File[]): FormErrors {
+function validateForm(
+  data: FormData,
+  images: UploadedImage[]
+): FormErrors {
   const errors: FormErrors = {}
 
   if (!data.title.trim()) errors.title = "Listing title is required"
@@ -61,17 +64,27 @@ function validateForm(data: FormData, _images: File[]): FormErrors {
   if (!data.furnishing) errors.furnishing = "Please select furnishing type"
   if (!data.genderPreference) errors.genderPreference = "Please select gender preference"
 
+  // Image validation
+  const uploading = images.filter((img) => !img.url && !img.error)
+  const failed = images.filter((img) => !!img.error)
+  if (uploading.length > 0) {
+    errors.images = `${uploading.length} image${uploading.length > 1 ? "s are" : " is"} still uploading. Please wait.`
+  } else if (failed.length > 0) {
+    errors.images = `${failed.length} image${failed.length > 1 ? "s" : ""} failed to upload. Remove or retry them before submitting.`
+  }
+
   return errors
 }
 
 // Maps a form field key to its DOM element id for scroll-to-error
-const FIELD_ID_MAP: Partial<Record<keyof FormData, string>> = {
+const FIELD_ID_MAP: Partial<Record<keyof FormData | "images", string>> = {
   title: "listing-title",
   description: "listing-description",
   city: "city",
   locality: "locality",
   pincode: "pincode",
   monthlyRent: "monthly-rent",
+  images: "image-upload-dropzone",
 }
 
 // --- Toast ---
@@ -121,7 +134,8 @@ export default function AddListingPage() {
   })
 
   const [amenities, setAmenities] = useState<string[]>([])
-  const [images, setImages] = useState<File[]>([])
+  // Images are UploadedImage objects — each tracks its own upload progress + Cloudinary URL
+  const [images, setImages] = useState<UploadedImage[]>([])
   const [errors, setErrors] = useState<FormErrors>({})
   const [isLoading, setIsLoading] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
@@ -145,7 +159,13 @@ export default function AddListingPage() {
     )
   }, [])
 
-  // Submit handler — real API call, no fake delay
+  // Images change — also clear the image error
+  const handleImagesChange = useCallback((updated: UploadedImage[]) => {
+    setImages(updated)
+    setErrors((prev) => ({ ...prev, images: undefined }))
+  }, [])
+
+  // Submit handler — images are already uploaded (background), we just send their URLs
   const handleSubmit = async (publishStatus: "DRAFT" | "ACTIVE") => {
     const submitData = { ...formData, status: publishStatus }
 
@@ -153,8 +173,8 @@ export default function AddListingPage() {
     const validationErrors = validateForm(submitData, images)
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
-      const firstKey = Object.keys(validationErrors)[0] as keyof FormData
-      const elId = FIELD_ID_MAP[firstKey] ?? firstKey
+      const firstKey = Object.keys(validationErrors)[0] as keyof FormData | "images"
+      const elId = FIELD_ID_MAP[firstKey] ?? String(firstKey)
       document.getElementById(elId)?.scrollIntoView({ behavior: "smooth", block: "center" })
       showToast("Please fix the highlighted fields before continuing.", "error")
       return
@@ -162,6 +182,15 @@ export default function AddListingPage() {
 
     setIsLoading(true)
     try {
+      // Build the image payload — only images that successfully uploaded
+      const imagePayload = images
+        .filter((img) => img.url && img.publicId)
+        .map((img, index) => ({
+          url: img.url!,
+          publicId: img.publicId!,
+          sortOrder: index,
+        }))
+
       // Payload contains only fields that exist in the Listing schema
       const res = await fetch("/api/listings", {
         method: "POST",
@@ -179,6 +208,7 @@ export default function AddListingPage() {
           furnishing: submitData.furnishing,
           genderPreference: submitData.genderPreference,
           amenities,
+          images: imagePayload.length > 0 ? imagePayload : undefined,
           status: publishStatus,
         }),
       })
@@ -192,7 +222,7 @@ export default function AddListingPage() {
           setErrors(errJson.fieldErrors as FormErrors)
           const firstKey = Object.keys(errJson.fieldErrors)[0] as keyof FormData
           const elId = FIELD_ID_MAP[firstKey] ?? firstKey
-          document.getElementById(elId)?.scrollIntoView({ behavior: "smooth", block: "center" })
+          document.getElementById(elId as string)?.scrollIntoView({ behavior: "smooth", block: "center" })
         }
         showToast(errJson.error ?? "Something went wrong. Please try again.", "error")
         return
@@ -284,7 +314,7 @@ export default function AddListingPage() {
           <AmenitiesSection selected={amenities} onToggle={handleAmenityToggle} />
 
           <SectionDivider label="Photos" />
-          <ImageUpload images={images} onChange={setImages} errors={errors} />
+          <ImageUpload images={images} onChange={handleImagesChange} errors={errors} />
 
           <SectionDivider label="Status" />
           <ListingStatus

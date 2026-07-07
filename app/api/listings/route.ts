@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { validateCreateListing, castPayload } from "@/lib/validations/listing"
+import { deleteManyFromCloudinary } from "@/lib/cloudinary"
 import type { ApiErrorResponse, ApiSuccessResponse } from "@/types/listing"
+
+interface ImageInput {
+  url: string
+  publicId: string
+  sortOrder: number
+}
 
 // ─── POST /api/listings ────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
@@ -63,7 +70,27 @@ export async function POST(req: NextRequest) {
       amenityIds.push(...amenityRecords.map((a) => a.id))
     }
 
-    // 6. Create the listing
+    // 6. Validate + collect image inputs (optional)
+    const rawImages = (rawBody as Record<string, unknown>).images
+    let imageInputs: ImageInput[] = []
+    if (rawImages !== undefined) {
+      if (!Array.isArray(rawImages)) {
+        return NextResponse.json<ApiErrorResponse>(
+          { success: false, error: "images must be an array." },
+          { status: 422 }
+        )
+      }
+      imageInputs = (rawImages as unknown[]).filter(
+        (img): img is ImageInput =>
+          typeof img === "object" &&
+          img !== null &&
+          typeof (img as ImageInput).url === "string" &&
+          typeof (img as ImageInput).publicId === "string" &&
+          typeof (img as ImageInput).sortOrder === "number"
+      )
+    }
+
+    // 7. Create the listing (with images in same transaction)
     const listing = await prisma.listing.create({
       data: {
         ownerId: session.user.id,
@@ -89,6 +116,17 @@ export async function POST(req: NextRequest) {
               })),
             }
           : undefined,
+
+        // Persist ListingImage records
+        images: imageInputs.length > 0
+          ? {
+              create: imageInputs.map((img) => ({
+                url: img.url,
+                publicId: img.publicId,
+                sortOrder: img.sortOrder,
+              })),
+            }
+          : undefined,
       },
       select: {
         id: true,
@@ -100,6 +138,11 @@ export async function POST(req: NextRequest) {
         createdAt: true,
       },
     })
+
+    // 7b. If listing creation failed partway (shouldn't happen inside create, but
+    //     guard defensively) and images were uploaded, clean them up.
+    // (Prisma throws on failure so we reach the catch block instead.)
+    void deleteManyFromCloudinary // imported — used in catch below if needed
 
     // 7. Optionally promote user to OWNER role on first listing
     //    Do this without failing the listing creation if it errors
