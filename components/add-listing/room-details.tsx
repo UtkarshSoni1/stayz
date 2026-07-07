@@ -1,6 +1,6 @@
 "use client"
 
-import { BedDouble, Calendar } from "lucide-react"
+import { BedDouble } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,9 +11,6 @@ interface RoomDetailsProps {
     roomType: string
     furnishing: string
     genderPreference: string
-    totalSeats: string
-    vacantSeats: string
-    availableFrom: string
   }
   onChange: (field: string, value: string) => void
   errors: Record<string, string>
@@ -162,62 +159,6 @@ export function RoomDetails({ data, onChange, errors }: RoomDetailsProps) {
           )}
         </div>
 
-        {/* Seats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="total-seats" className="text-sm font-medium">
-              Total Seats{" "}
-              <span className="text-muted-foreground/60 text-xs font-normal">(optional)</span>
-            </Label>
-            <Input
-              id="total-seats"
-              type="number"
-              placeholder="e.g. 4"
-              min={1}
-              value={data.totalSeats}
-              onChange={(e) => onChange("totalSeats", e.target.value)}
-              className="h-10 bg-background/50 border-border/60 focus-visible:border-violet-400/50 focus-visible:ring-violet-400/20 placeholder:text-muted-foreground/50"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="vacant-seats" className="text-sm font-medium">
-              Vacant Seats{" "}
-              <span className="text-muted-foreground/60 text-xs font-normal">(optional)</span>
-            </Label>
-            <Input
-              id="vacant-seats"
-              type="number"
-              placeholder="e.g. 2"
-              min={0}
-              value={data.vacantSeats}
-              onChange={(e) => onChange("vacantSeats", e.target.value)}
-              className="h-10 bg-background/50 border-border/60 focus-visible:border-violet-400/50 focus-visible:ring-violet-400/20 placeholder:text-muted-foreground/50"
-            />
-          </div>
-        </div>
-
-        {/* Available From */}
-        <div className="space-y-2">
-          <Label htmlFor="available-from" className="text-sm font-medium flex items-center gap-2">
-            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-            Available From <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="available-from"
-            type="date"
-            value={data.availableFrom}
-            onChange={(e) => onChange("availableFrom", e.target.value)}
-            aria-invalid={!!errors.availableFrom}
-            min={new Date().toISOString().split("T")[0]}
-            className="h-10 bg-background/50 border-border/60 focus-visible:border-violet-400/50 focus-visible:ring-violet-400/20 max-w-[220px] [color-scheme:dark]"
-          />
-          {errors.availableFrom && (
-            <p className="text-xs text-destructive flex items-center gap-1.5">
-              <span className="inline-block w-1 h-1 rounded-full bg-destructive" />
-              {errors.availableFrom}
-            </p>
-          )}
-        </div>
       </CardContent>
     </Card>
   )

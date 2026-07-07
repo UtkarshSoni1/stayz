@@ -11,8 +11,6 @@ interface LocationSectionProps {
     locality: string
     address: string
     pincode: string
-    latitude: string
-    longitude: string
   }
   onChange: (field: string, value: string) => void
   errors: Record<string, string>
@@ -117,37 +115,6 @@ export function LocationSection({ data, onChange, errors }: LocationSectionProps
           )}
         </div>
 
-        {/* Lat/Long */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="latitude" className="text-sm font-medium">
-              Latitude{" "}
-              <span className="text-muted-foreground/60 text-xs font-normal">(optional)</span>
-            </Label>
-            <Input
-              id="latitude"
-              type="number"
-              placeholder="e.g. 12.9716"
-              value={data.latitude}
-              onChange={(e) => onChange("latitude", e.target.value)}
-              className="h-10 bg-background/50 border-border/60 focus-visible:border-blue-400/50 focus-visible:ring-blue-400/20 placeholder:text-muted-foreground/50"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="longitude" className="text-sm font-medium">
-              Longitude{" "}
-              <span className="text-muted-foreground/60 text-xs font-normal">(optional)</span>
-            </Label>
-            <Input
-              id="longitude"
-              type="number"
-              placeholder="e.g. 77.5946"
-              value={data.longitude}
-              onChange={(e) => onChange("longitude", e.target.value)}
-              className="h-10 bg-background/50 border-border/60 focus-visible:border-blue-400/50 focus-visible:ring-blue-400/20 placeholder:text-muted-foreground/50"
-            />
-          </div>
-        </div>
       </CardContent>
     </Card>
   )
