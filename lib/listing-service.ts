@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { deleteManyFromCloudinary } from "@/lib/cloudinary"
 import type { ListingStatus, RoomType } from "@prisma/client"
 import type { MyListingDTO, UpdateListingPayload } from "@/types/listing"
 
@@ -302,14 +303,25 @@ export async function deleteListing(
 ): Promise<{ ok: true } | { ok: false; status: 403 | 404; message: string }> {
   const existing = await prisma.listing.findUnique({
     where: { id },
-    select: { ownerId: true },
+    select: {
+      ownerId: true,
+      // Fetch all images so we can clean up Cloudinary
+      images: { select: { publicId: true } },
+    },
   })
 
   if (!existing) return { ok: false, status: 404, message: "Listing not found." }
   if (existing.ownerId !== ownerId && userRole !== "ADMIN")
     return { ok: false, status: 403, message: "Forbidden." }
 
-  // Cascade is handled by Prisma schema (onDelete: Cascade)
+  // 1. Delete Cloudinary assets (non-blocking failure — log only)
+  const publicIds = existing.images
+    .map((img) => img.publicId)
+    .filter((pid): pid is string => !!pid)
+
+  await deleteManyFromCloudinary(publicIds)
+
+  // 2. Delete the listing — DB cascade removes ListingImage rows
   await prisma.listing.delete({ where: { id } })
 
   return { ok: true }

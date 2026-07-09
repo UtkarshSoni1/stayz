@@ -12,23 +12,15 @@ export interface CreateListingPayload {
   locality: string
   address?: string
   pincode: string
-  latitude?: number
-  longitude?: number
 
   // Pricing
   monthlyRent: number
-  securityDeposit?: number
+  securityDeposit?: number // maps to Listing.deposit
 
   // Room Details
   roomType: RoomType
   furnishing: Furnishing
   genderPreference: GenderPreference
-  totalSeats?: number
-  vacantSeats?: number
-  availableFrom: string // ISO date string e.g. "2025-08-01"
-
-  // Contact
-  phone: string
 
   // Amenities — list of amenity name strings e.g. ["WIFI", "AC"]
   amenities: string[]
