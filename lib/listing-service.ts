@@ -294,6 +294,28 @@ export async function markListingRented(
   return { ok: true }
 }
 
+// ─── markListingAvailable ─────────────────────────────────────────────────────
+
+export async function markListingAvailable(
+  id: string,
+  ownerId: string
+): Promise<{ ok: true } | { ok: false; status: 403 | 404; message: string }> {
+  const existing = await prisma.listing.findUnique({
+    where: { id },
+    select: { ownerId: true },
+  })
+
+  if (!existing) return { ok: false, status: 404, message: "Listing not found." }
+  if (existing.ownerId !== ownerId) return { ok: false, status: 403, message: "Forbidden." }
+
+  await prisma.listing.update({
+    where: { id },
+    data: { status: "ACTIVE", isAvailable: true },
+  })
+
+  return { ok: true }
+}
+
 // ─── deleteListing ────────────────────────────────────────────────────────────
 
 export async function deleteListing(

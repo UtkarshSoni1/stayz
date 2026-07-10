@@ -22,6 +22,8 @@ model User {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   emailVerified      DateTime?
+  phone              String?              // optional — shown as "Call Owner" CTA
+  whatsappNumber     String?              // optional — shown as "Message on WhatsApp" CTA
 
   // ── Host-facing profile fields ──────────────────────────────────────────────
   responseRate       String?              // e.g. "100%"
@@ -117,10 +119,11 @@ model Listing {
   roomType         RoomType
   genderPreference GenderPreference @default(ANY)
   furnishing       Furnishing
-  isAvailable      Boolean          @default(false)
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  status           ListingStatus    @default(DRAFT)
+  isAvailable         Boolean          @default(false)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  status              ListingStatus    @default(DRAFT)
+  contactClickCount   Int              @default(0)  // fire-and-forget analytics
 
   // ── Denormalised review aggregates (recomputed in $transaction on review write) ──
   reviewCount      Int              @default(0)

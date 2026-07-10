@@ -43,15 +43,14 @@ export function ListingNavBar({
     return () => observerRef.current?.disconnect();
   }, [bookingCardId]);
 
-  const subtotal = booking.pricePerNight * booking.nights;
-  const total = subtotal + booking.serviceFee;
-
+  const total = booking.monthlyRent + (booking.deposit ?? 0);
+ 
   return (
     <nav
       className={`sticky top-0 z-50 w-full border-b border-outline-variant/30 bg-[#0a0a0a]/95 backdrop-blur-xl transition-all duration-300`}
     >
       <div className="flex items-center justify-between w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto h-16">
-
+ 
         {/* ── Section anchor links (always visible) ─────────────────────── */}
         <div className="flex items-center gap-8">
           {sectionLinks.map((link) => (
@@ -64,7 +63,7 @@ export function ListingNavBar({
             </a>
           ))}
         </div>
-
+ 
         {/* ── Compact booking widget (slides in when card leaves viewport) ─ */}
         <div
           className={`flex items-center gap-4 transition-all duration-300 ${
@@ -76,29 +75,28 @@ export function ListingNavBar({
           {/* Price & label */}
           <div className="text-right">
             <p className="text-sm font-bold text-on-surface leading-tight">
-              {formatCurrency(total, booking.currency)}{" "}
-              <span className="font-normal text-on-surface-variant">
-                for {booking.nights} nights
-              </span>
+              {formatCurrency(booking.monthlyRent, booking.currency)}{" "}
+              <span className="font-normal text-on-surface-variant">/ month</span>
             </p>
-            <p className="text-xs text-on-surface-variant flex items-center gap-1 justify-end">
-              <span
-                className="material-symbols-outlined text-primary text-sm"
-                style={{ fontVariationSettings: '"FILL" 1' }}
-              >
-                star
-              </span>
-              {booking.rating.toFixed(1)} · {/* host review count */}
-              <span>16 reviews</span>
-            </p>
+            {booking.deposit !== undefined && booking.deposit > 0 && (
+              <p className="text-[10px] text-on-surface-variant">
+                + {formatCurrency(booking.deposit, booking.currency)} deposit
+              </p>
+            )}
           </div>
-
-          {/* Reserve button */}
+ 
+          {/* Contact button */}
           <button
             type="button"
-            className="bg-blue-600 hover:opacity-90 active:scale-95 text-white font-bold text-sm px-5 py-2.5 rounded-full transition-all shadow-md"
+            onClick={() => {
+              const card = document.getElementById("booking-card-sentinel");
+              if (card) {
+                card.scrollIntoView({ behavior: "smooth", block: "center" });
+              }
+            }}
+            className="bg-primary hover:opacity-90 active:scale-95 text-primary-foreground font-bold text-sm px-5 py-2.5 rounded-full transition-all shadow-md"
           >
-            Reserve
+            Contact
           </button>
         </div>
       </div>

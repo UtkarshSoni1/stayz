@@ -55,12 +55,21 @@ export default function ListingCard({ listing }: { listing: ListingWithImage }) 
             alt={listing.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
+            className={`object-cover transition-opacity ${
+              listing.status === "RENTED" ? "grayscale" : ""
+            }`}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-muted/30">
             <Home className="h-10 w-10 text-muted-foreground" strokeWidth={1.5} />
           </div>
+        )}
+
+        {/* Rented badge — top-left, only when rented */}
+        {listing.status === "RENTED" && (
+          <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-zinc-800/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-widest text-zinc-300 shadow-md backdrop-blur-sm border border-white/10">
+            Rented
+          </span>
         )}
 
         {/* Wishlist heart — absolutely positioned top-right */}

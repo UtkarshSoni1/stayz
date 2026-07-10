@@ -55,6 +55,7 @@ interface ListingCardProps {
   listing: MyListing;
   onDuplicate: (id: string) => void;
   onMarkRented: (id: string) => void;
+  onMarkAvailable: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -62,6 +63,7 @@ export function ListingCard({
   listing,
   onDuplicate,
   onMarkRented,
+  onMarkAvailable,
   onDelete,
 }: ListingCardProps) {
   const formattedDate = new Date(listing.createdAt).toLocaleDateString(
@@ -165,6 +167,7 @@ export function ListingCard({
           listing={listing}
           onDuplicate={onDuplicate}
           onMarkRented={onMarkRented}
+          onMarkAvailable={onMarkAvailable}
           onDelete={onDelete}
         />
       </div>

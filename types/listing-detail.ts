@@ -23,6 +23,9 @@ export interface Host {
   personalDetails: HostPersonalDetail[];
   superhostDescription: string;
   safetyDisclaimer: string;
+  // Contact fields — set by owner from dashboard settings
+  phone?: string;
+  whatsappNumber?: string;
 }
 
 export interface Amenity {
@@ -43,16 +46,15 @@ export interface Review {
 }
 
 export interface BookingInfo {
-  pricePerNight: number;
+  monthlyRent: number;
   currency: string;
   rating: number;
-  checkInLabel: string;
-  checkOutLabel: string;
-  guestsLabel: string;
-  nights: number;
-  serviceFee: number;
-  chargeNote: string;
+  deposit?: number;
+  maxGuests: number;
   reserveLabel: string;
+  /** Passed through so BookingCard can build the WhatsApp message link */
+  listingId: string;
+  listingTitle: string;
 }
 
 export interface RatingBreakdown {

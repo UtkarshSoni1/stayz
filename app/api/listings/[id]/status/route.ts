@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth-helpers"
-import { markListingRented } from "@/lib/listing-service"
+import { markListingRented, markListingAvailable } from "@/lib/listing-service"
 import type { ApiErrorResponse, ApiSuccessResponse } from "@/types/listing"
 
 // ─── PATCH /api/listings/[id]/status ─────────────────────────────────────────
@@ -22,15 +22,23 @@ export async function PATCH(
       )
     }
 
-    if (!body || typeof body !== "object" || (body as Record<string, unknown>).status !== "RENTED") {
+    const status =
+      body && typeof body === "object"
+        ? (body as Record<string, unknown>).status
+        : undefined
+
+    if (status !== "RENTED" && status !== "ACTIVE") {
       return NextResponse.json<ApiErrorResponse>(
-        { success: false, error: "Body must be { status: \"RENTED\" }." },
+        { success: false, error: 'Body must be { status: "RENTED" | "ACTIVE" }.' },
         { status: 422 }
       )
     }
 
     const { id } = await params
-    const result = await markListingRented(id, user.id)
+    const result =
+      status === "RENTED"
+        ? await markListingRented(id, user.id)
+        : await markListingAvailable(id, user.id)
 
     if (!result.ok) {
       return NextResponse.json<ApiErrorResponse>(

@@ -7,6 +7,7 @@ import {
   Pencil,
   Copy,
   CheckCircle,
+  RotateCcw,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ interface ListingActionsProps {
   listing: MyListing;
   onDuplicate: (id: string) => void;
   onMarkRented: (id: string) => void;
+  onMarkAvailable: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -38,6 +40,7 @@ export function ListingActions({
   listing,
   onDuplicate,
   onMarkRented,
+  onMarkAvailable,
   onDelete,
 }: ListingActionsProps) {
   const router = useRouter();
@@ -104,8 +107,8 @@ export function ListingActions({
           <TooltipContent side="top">Duplicate</TooltipContent>
         </Tooltip>
 
-        {/* Mark as Rented */}
-        {listing.status !== "RENTED" && (
+        {/* Mark as Rented / Mark as Available — mutually exclusive */}
+        {listing.status !== "RENTED" ? (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -119,6 +122,21 @@ export function ListingActions({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">Mark as Rented</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="h-8 w-8 text-muted-foreground hover:text-blue-400 hover:bg-blue-500/10"
+                onClick={() => onMarkAvailable(listing.id)}
+                aria-label="Mark as available"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">Mark as Available</TooltipContent>
           </Tooltip>
         )}
 

@@ -23,6 +23,8 @@ export async function GET() {
         image: true,
         role: true,
         createdAt: true,
+        phone: true,
+        whatsappNumber: true,
       },
     });
 
@@ -57,15 +59,30 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const body = await req.json() as { name?: string; image?: string };
+    const body = await req.json() as {
+      name?: string;
+      image?: string;
+      phone?: string;
+      whatsappNumber?: string;
+    };
 
     const updated = await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        ...(body.name && { name: body.name }),
-        ...(body.image && { image: body.image }),
+        ...(body.name !== undefined && { name: body.name }),
+        ...(body.image !== undefined && { image: body.image }),
+        ...(body.phone !== undefined && { phone: body.phone }),
+        ...(body.whatsappNumber !== undefined && { whatsappNumber: body.whatsappNumber }),
       },
-      select: { id: true, name: true, email: true, image: true, role: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        role: true,
+        phone: true,
+        whatsappNumber: true,
+      },
     });
 
     return NextResponse.json<ApiSuccessResponse<typeof updated>>({

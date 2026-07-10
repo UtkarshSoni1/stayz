@@ -15,7 +15,14 @@ export const listingNavLinks: NavLink[] = [
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-export function formatCurrency(amount: number, currency: string): string {
+export function formatCurrency(
+  amount: number | null | undefined,
+  currency: string,
+): string {
+  if (amount == null || Number.isNaN(amount)) {
+    return `${currency}0`;
+  }
+
   return `${currency}${amount.toLocaleString("en-IN")}`;
 }
 
@@ -73,6 +80,8 @@ export async function getListingById(id: string): Promise<Listing | null> {
           yearsHosting: true,
           joinedYear: true,
           createdAt: true,
+          phone: true,
+          whatsappNumber: true,
           hostPersonalDetails: {
             orderBy: { id: "asc" },
           },
@@ -115,6 +124,9 @@ export async function getListingById(id: string): Promise<Listing | null> {
       "Superhosts are experienced, highly rated hosts who are committed to providing great stays for guests.",
     safetyDisclaimer:
       "To protect your payment, always use StayZ to send money and communicate with hosts.",
+    // Contact fields — populated by owner from their dashboard settings
+    phone: row.owner.phone ?? undefined,
+    whatsappNumber: row.owner.whatsappNumber ?? undefined,
   };
 
   // ── Map highlights ──────────────────────────────────────────────────────────
@@ -174,24 +186,16 @@ export async function getListingById(id: string): Promise<Listing | null> {
     content: t.content,
   }));
 
-  // ── Map booking info ────────────────────────────────────────────────────────
-  // pricePerNight is the Airbnb-style nightly rate; fall back to a rough daily
-  // equivalent of monthlyRent so the card is never empty.
-  const pricePerNight = row.pricePerNight ?? Math.round(row.monthlyRent / 30);
-  const nights = 5;
-  const serviceFee = Math.round(pricePerNight * nights * 0.12);
-
+  // ── Map booking info (rental-platform model: monthly rent + deposit) ─────────
   const booking = {
-    pricePerNight,
+    monthlyRent: row.monthlyRent,
     currency: "₹",
     rating: row.avgRating,
-    checkInLabel: "Add date",
-    checkOutLabel: "Add date",
-    guestsLabel: `${row.guests} guest${row.guests !== 1 ? "s" : ""}`,
-    nights,
-    serviceFee,
-    chargeNote: "You won't be charged yet",
-    reserveLabel: "Reserve Now",
+    deposit: row.deposit ?? undefined,
+    maxGuests: row.guests,
+    reserveLabel: "Contact Owner",
+    listingId: row.id,
+    listingTitle: row.title,
   };
 
   // ── Assemble final Listing object ───────────────────────────────────────────

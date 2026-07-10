@@ -15,6 +15,8 @@ import {
   MapSection,
   ThingsToKnow,
 } from "@/components/listing-details";
+import { EditorialFooter } from "@/components/home/EditorialFooter";
+import { BottomNavBar } from "@/components/home/BottomNavBar";
 
 interface ListingDetailPageProps {
   params: Promise<{ id: string }>;
@@ -50,8 +52,9 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
       <main className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pt-12">
         <ListingHeader title={listing.title} />
         <PhotoGallery photos={listing.photos} />
+        <div id="booking-card-sentinel" aria-hidden="true" />
         <section className="grid grid-cols-1 md:grid-cols-3 gap-16 pb-section-gap">
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 ">
             <PropertyInfo listing={listing} host={listing.host} />
             <AmenitiesList highlights={listing.highlights} amenities={listing.amenities} />
             <Description
@@ -69,11 +72,12 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
             <HostCard host={listing.host} />
             <ThingsToKnow items={listing.thingsToKnow} />
           </div>
-          <BookingCard booking={listing.booking} />
+          <BookingCard booking={listing.booking} host={listing.host}/>
         </section>
       </main>
       <footer className="bg-surface-container-lowest border-t border-outline-variant">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter px-margin-mobile md:px-margin-desktop py-section-gap max-w-container-max mx-auto" />
+        <EditorialFooter/>
+        <BottomNavBar/>
       </footer>
     </div>
   );

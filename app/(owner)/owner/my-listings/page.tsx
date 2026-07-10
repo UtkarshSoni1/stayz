@@ -167,6 +167,34 @@ export default function MyListingsPage() {
     }
   }
 
+  async function handleMarkAvailable(id: string) {
+    // Optimistic update
+    setListings((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, status: "ACTIVE" as const } : l))
+    );
+    try {
+      const res = await fetch(`/api/listings/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "ACTIVE" }),
+      });
+      if (!res.ok) {
+        // Revert on failure
+        setListings((prev) =>
+          prev.map((l) =>
+            l.id === id ? { ...l, status: "RENTED" as const } : l
+          )
+        );
+      }
+    } catch {
+      setListings((prev) =>
+        prev.map((l) =>
+          l.id === id ? { ...l, status: "RENTED" as const } : l
+        )
+      );
+    }
+  }
+
   async function handleDelete(id: string) {
     // Optimistic remove
     setListings((prev) => prev.filter((l) => l.id !== id));
@@ -267,6 +295,7 @@ export default function MyListingsPage() {
                 listing={listing}
                 onDuplicate={handleDuplicate}
                 onMarkRented={handleMarkRented}
+                onMarkAvailable={handleMarkAvailable}
                 onDelete={handleDelete}
               />
             ))}
