@@ -276,9 +276,11 @@ export async function duplicateListing(
 
 export async function markListingRented(
   id: string,
-  ownerId: string
+  ownerId: string,
+  tx?: any
 ): Promise<{ ok: true } | { ok: false; status: 403 | 404; message: string }> {
-  const existing = await prisma.listing.findUnique({
+  const client = tx || prisma
+  const existing = await client.listing.findUnique({
     where: { id },
     select: { ownerId: true },
   })
@@ -286,7 +288,7 @@ export async function markListingRented(
   if (!existing) return { ok: false, status: 404, message: "Listing not found." }
   if (existing.ownerId !== ownerId) return { ok: false, status: 403, message: "Forbidden." }
 
-  await prisma.listing.update({
+  await client.listing.update({
     where: { id },
     data: { status: "RENTED", isAvailable: false },
   })
@@ -298,9 +300,11 @@ export async function markListingRented(
 
 export async function markListingAvailable(
   id: string,
-  ownerId: string
+  ownerId: string,
+  tx?: any
 ): Promise<{ ok: true } | { ok: false; status: 403 | 404; message: string }> {
-  const existing = await prisma.listing.findUnique({
+  const client = tx || prisma
+  const existing = await client.listing.findUnique({
     where: { id },
     select: { ownerId: true },
   })
@@ -308,7 +312,7 @@ export async function markListingAvailable(
   if (!existing) return { ok: false, status: 404, message: "Listing not found." }
   if (existing.ownerId !== ownerId) return { ok: false, status: 403, message: "Forbidden." }
 
-  await prisma.listing.update({
+  await client.listing.update({
     where: { id },
     data: { status: "ACTIVE", isAvailable: true },
   })

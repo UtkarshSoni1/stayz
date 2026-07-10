@@ -10,6 +10,7 @@ import {
   Star,
   TrendingUp,
   KeyRound,
+  Inbox,
 } from "lucide-react";
 import Link from "next/link";
 import { AppNavBar } from "@/components/navbar/AppNavBar";
@@ -127,6 +128,7 @@ export function DashboardClient({ summary, user }: DashboardClientProps) {
                 {[
                   { type: "link", label: "List a New Property", href: "/owner/add-listing", icon: PlusCircle, desc: "Start earning today" },
                   { type: "link", label: "My Listings", href: "/owner/my-listings", icon: List, desc: "Manage your properties" },
+                  { type: "link", label: "Booking Requests", href: "/owner/booking-requests", icon: Inbox, desc: "Review guest requests" },
                   { type: "link", label: "Browse Stays", href: "/listings", icon: MapPin, desc: "Find your next stay" },
                   { type: "button", label: "Edit Profile", onClick: () => setIsProfileModalOpen(true), icon: UserIcon, desc: "Update your info" },
                 ].map((action, idx) => {

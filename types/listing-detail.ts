@@ -55,6 +55,7 @@ export interface BookingInfo {
   /** Passed through so BookingCard can build the WhatsApp message link */
   listingId: string;
   listingTitle: string;
+  status?: string;
 }
 
 export interface RatingBreakdown {

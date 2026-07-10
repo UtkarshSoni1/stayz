@@ -63,7 +63,7 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
             />
             <SleepingArrangements arrangements={listing.sleepingArrangements} />
             <RatingsBreakdown breakdown={listing.ratingBreakdown} />
-            <ReviewsSection reviews={listing.reviews} />
+            <ReviewsSection reviews={listing.reviews} listingId={listing.id} />
             <MapSection
               location={listing.mapLocation}
               imageUrl={listing.mapImageUrl}

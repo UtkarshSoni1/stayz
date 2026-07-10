@@ -38,6 +38,7 @@ model User {
   savedListings      SavedListing[]       @relation("UserSavedListings")
   sessions           Session[]
   hostPersonalDetails HostPersonalDetail[] @relation("UserHostDetails")
+  bookingRequests    BookingRequest[]      @relation("UserBookingRequests")
 }
 
 model HostPersonalDetail {
@@ -143,6 +144,7 @@ model Listing {
   highlights           Highlight[]           @relation("ListingHighlights")
   sleepingArrangements SleepingArrangement[] @relation("ListingSleepingArrangements")
   thingsToKnow         ThingToKnow[]         @relation("ListingThingsToKnow")
+  bookingRequests      BookingRequest[]      @relation("ListingBookingRequests")
 
   @@index([city, locality])
   @@index([monthlyRent])
@@ -298,4 +300,30 @@ enum Furnishing {
   FURNISHED
   SEMI_FURNISHED
   UNFURNISHED
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Booking Requests (Instagram-style accept/reject tenancy proof)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model BookingRequest {
+  id          String        @id @default(cuid())
+  listingId   String
+  userId      String
+  status      RequestStatus @default(PENDING)
+  moveInDate  DateTime?
+  guests      Int?
+  message     String?
+  createdAt   DateTime      @default(now())
+  respondedAt DateTime?
+  listing     Listing       @relation("ListingBookingRequests", fields: [listingId], references: [id], onDelete: Cascade)
+  user        User          @relation("UserBookingRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, userId, status])
 }

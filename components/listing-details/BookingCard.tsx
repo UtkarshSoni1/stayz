@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { BookingInfo, Host } from "@/types/listing-detail";
 import { formatCurrency } from "@/data/listing-detail";
 import { StarRating } from "./StarRating";
@@ -14,6 +15,15 @@ function digitsOnly(str: string): string {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+type RequestState =
+  | { kind: "idle" }
+  | { kind: "confirming" }
+  | { kind: "submitting" }
+  | { kind: "PENDING" }
+  | { kind: "ACCEPTED" }
+  | { kind: "REJECTED" }
+  | { kind: "NO_LONGER_AVAILABLE" };
+
 interface BookingCardProps {
   booking: BookingInfo;
   host: Host;
@@ -22,8 +32,12 @@ interface BookingCardProps {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function BookingCard({ booking, host }: BookingCardProps) {
+  const router = useRouter();
   const [moveInDate, setMoveInDate] = useState("");
   const [guests, setGuests] = useState(1);
+  const [requestState, setRequestState] = useState<RequestState>({ kind: "idle" });
+  const [requestMessage, setRequestMessage] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); // null = unknown
 
   const total = booking.monthlyRent + (booking.deposit ?? 0);
   const hasWhatsApp = !!host.whatsappNumber;
@@ -33,6 +47,71 @@ export function BookingCard({ booking, host }: BookingCardProps) {
   const decrementGuests = () => setGuests((g) => Math.max(1, g - 1));
   const incrementGuests = () =>
     setGuests((g) => Math.min(booking.maxGuests, g + 1));
+
+  // ── Check session + existing request status on mount ──────────────────────
+  useEffect(() => {
+    async function checkStatus() {
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        const session = await sessionRes.json();
+        if (!session?.user?.id) {
+          setIsLoggedIn(false);
+          if (booking.status === "RENTED") {
+            setRequestState({ kind: "NO_LONGER_AVAILABLE" });
+          }
+          return;
+        }
+        setIsLoggedIn(true);
+
+        // Fetch user's booking requests and find one for this listing
+        const res = await fetch("/api/user/booking-requests");
+        if (!res.ok) {
+          if (booking.status === "RENTED") {
+            setRequestState({ kind: "NO_LONGER_AVAILABLE" });
+          }
+          return;
+        }
+        const json = await res.json();
+        if (!json.success) {
+          if (booking.status === "RENTED") {
+            setRequestState({ kind: "NO_LONGER_AVAILABLE" });
+          }
+          return;
+        }
+
+        const requests = json.data as Array<{ listingId: string; status: string }>;
+        
+        let existing = requests.find(
+          (r) => r.listingId === booking.listingId && r.status === "ACCEPTED"
+        );
+        if (!existing) {
+          existing = requests.find(
+            (r) => r.listingId === booking.listingId && r.status === "PENDING"
+          );
+        }
+        if (!existing) {
+          existing = requests.find(
+            (r) => r.listingId === booking.listingId && r.status === "REJECTED"
+          );
+        }
+
+        if (existing) {
+          if (booking.status === "RENTED" && existing.status !== "ACCEPTED") {
+            setRequestState({ kind: "NO_LONGER_AVAILABLE" });
+          } else {
+            setRequestState({ kind: existing.status as any });
+          }
+        } else if (booking.status === "RENTED") {
+          setRequestState({ kind: "NO_LONGER_AVAILABLE" });
+        }
+      } catch {
+        if (booking.status === "RENTED") {
+          setRequestState({ kind: "NO_LONGER_AVAILABLE" });
+        }
+      }
+    }
+    checkStatus();
+  }, [booking.listingId, booking.status]);
 
   /** Fire-and-forget analytics hit — never blocks the user action */
   const trackContactClick = useCallback(() => {
@@ -54,6 +133,54 @@ export function BookingCard({ booking, host }: BookingCardProps) {
     const message = `Hi, interested in "${booking.listingTitle}" on StayZ (${dateClause}${guestClause}): ${listingUrl}`;
     return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
   }, [host.whatsappNumber, booking, moveInDate, guests]);
+
+  // ── Request to Book handlers ──────────────────────────────────────────────
+  const handleRequestClick = () => {
+    if (isLoggedIn === false) {
+      router.push("/login");
+      return;
+    }
+    setRequestState({ kind: "confirming" });
+  };
+
+  const handleConfirmRequest = async () => {
+    setRequestState({ kind: "submitting" });
+    try {
+      const res = await fetch(
+        `/api/listings/${booking.listingId}/booking-requests`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            moveInDate: moveInDate || undefined,
+            guests: guests,
+            message: requestMessage.trim() || undefined,
+          }),
+        }
+      );
+      const json = await res.json();
+
+      if (res.status === 409) {
+        // Already has a pending request
+        setRequestState({ kind: "PENDING" });
+        return;
+      }
+
+      if (!res.ok || !json.success) {
+        setRequestState({ kind: "idle" });
+        return;
+      }
+
+      setRequestState({ kind: "PENDING" });
+    } catch {
+      setRequestState({ kind: "idle" });
+    }
+  };
+
+  const handleCancelConfirm = () => {
+    setRequestState({ kind: "idle" });
+    setRequestMessage("");
+  };
 
   return (
     <div className="md:col-span-1 mt-2">
@@ -161,6 +288,108 @@ export function BookingCard({ booking, host }: BookingCardProps) {
             Contact info not available yet
           </div>
         )}
+
+        {/* Request to Book — distinct CTA */}
+        <div className="mb-6">
+          {requestState.kind === "idle" && (
+            <button
+              type="button"
+              onClick={handleRequestClick}
+              className="w-full flex items-center justify-center gap-2 bg-primary-container hover:brightness-110 text-on-primary-container py-4 rounded-full font-display-lg text-lg font-bold transition-all active:scale-95 shadow-md"
+            >
+              <span className="material-symbols-outlined text-xl leading-none" aria-hidden="true">
+                send
+              </span>
+              Request to Book
+            </button>
+          )}
+
+          {requestState.kind === "confirming" && (
+            <div className="space-y-3">
+              <textarea
+                value={requestMessage}
+                onChange={(e) => setRequestMessage(e.target.value)}
+                placeholder="Add a message for the owner (optional)…"
+                rows={2}
+                className="w-full bg-[#1a1a1a] border border-outline-variant/50 rounded-xl px-4 py-3 text-sm text-white placeholder:text-on-surface-variant/50 outline-none resize-none focus:border-primary-container/70 transition-colors"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleCancelConfirm}
+                  className="flex-1 py-3 rounded-full border border-outline-variant text-on-surface-variant font-bold text-sm transition-colors hover:bg-surface-container"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmRequest}
+                  className="flex-1 py-3 rounded-full bg-primary-container text-on-primary-container font-bold text-sm transition-all hover:brightness-110 active:scale-95"
+                >
+                  Send Request
+                </button>
+              </div>
+            </div>
+          )}
+
+          {requestState.kind === "submitting" && (
+            <button
+              type="button"
+              disabled
+              className="w-full flex items-center justify-center gap-2 bg-primary-container/50 text-on-primary-container/60 py-4 rounded-full font-display-lg text-lg font-bold cursor-wait"
+            >
+              <span className="material-symbols-outlined text-xl leading-none animate-spin" aria-hidden="true">
+                progress_activity
+              </span>
+              Sending…
+            </button>
+          )}
+
+          {requestState.kind === "PENDING" && (
+            <div className="w-full flex items-center justify-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 py-4 rounded-full font-display-lg text-sm font-bold select-none">
+              <span className="material-symbols-outlined text-xl leading-none" aria-hidden="true">
+                schedule
+              </span>
+              Request Pending — Awaiting owner response
+            </div>
+          )}
+
+          {requestState.kind === "ACCEPTED" && (
+            <div className="w-full flex items-center justify-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 py-4 rounded-full font-display-lg text-sm font-bold select-none">
+              <span className="material-symbols-outlined text-xl leading-none" aria-hidden="true">
+                check_circle
+              </span>
+              Request Accepted
+            </div>
+          )}
+
+          {requestState.kind === "REJECTED" && (
+            <>
+              <div className="w-full flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 py-3 rounded-full text-sm font-bold select-none mb-2">
+                <span className="material-symbols-outlined text-lg leading-none" aria-hidden="true">
+                  cancel
+                </span>
+                Previous request declined
+              </div>
+              <button
+                type="button"
+                onClick={() => setRequestState({ kind: "idle" })}
+                className="w-full text-center text-xs text-on-surface-variant hover:text-white transition-colors underline underline-offset-2 cursor-pointer"
+              >
+                Try again with different details
+              </button>
+            </>
+          )}
+
+          {requestState.kind === "NO_LONGER_AVAILABLE" && (
+            <div className="w-full flex items-center justify-center gap-2 bg-zinc-800/80 border border-white/10 text-zinc-400 py-4 rounded-full font-display-lg text-sm font-bold select-none">
+              <span className="material-symbols-outlined text-xl leading-none" aria-hidden="true">
+                block
+              </span>
+              No longer available
+            </div>
+          )}
+        </div>
 
         <p className="text-center text-on-surface-variant text-sm mb-6">
           Contact the owner to check availability

@@ -196,6 +196,7 @@ export async function getListingById(id: string): Promise<Listing | null> {
     reserveLabel: "Contact Owner",
     listingId: row.id,
     listingTitle: row.title,
+    status: row.status,
   };
 
   // ── Assemble final Listing object ───────────────────────────────────────────
