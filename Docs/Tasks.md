@@ -1,117 +1,125 @@
 # StayZ Task Plan
 
-This task list reflects the current repository state. Items marked done are already present in code; remaining items are ordered for a practical MVP path.
+Last synced: **commit 6bc6867 — booking request system**
 
-## Done
+---
 
-- [x] Initialize Next.js app with App Router.
-- [x] Add Tailwind CSS 4 and shadcn-style UI primitives.
-- [x] Add root layout, global theme variables, and dark theme provider.
-- [x] Configure Prisma client singleton.
-- [x] Add Auth.js/NextAuth configuration.
-- [x] Add Prisma auth models: `User`, `Account`, `Session`, `VerificationToken`.
-- [x] Add roles enum: `USER`, `OWNER`, `ADMIN`.
-- [x] Add credentials provider with bcrypt password comparison.
-- [x] Add Google provider entry point.
-- [x] Add `/api/auth/[...nextauth]` handler.
-- [x] Add `/api/auth/register` endpoint.
-- [x] Add login form.
-- [x] Add signup form.
-- [x] Add protected dashboard page.
-- [x] Add `proxy.ts` auth redirects for protected routes.
-- [x] Add placeholder public listing pages.
-- [x] Add placeholder owner listing creation page.
-- [x] Create project docs in `/Docs`.
+## ✅ Shipped
 
-## High Priority
+### Foundation
+- [x] Initialize Next.js 16 app with App Router
+- [x] Tailwind CSS 4 + shadcn/radix-ui primitives
+- [x] Root layout, global theme variables, dark theme provider
+- [x] Prisma client singleton (`lib/prisma.ts`)
+- [x] Auth.js / NextAuth v5 configuration (`lib/auth.ts`)
+- [x] Credentials provider with bcrypt password comparison
+- [x] Google OAuth provider
+- [x] `/api/auth/[...nextauth]` handler
+- [x] `/api/auth/register` endpoint
+- [x] Login form + signup form
+- [x] `proxy.ts` auth redirects for protected routes
 
-- [ ] Add server-side validation to `/api/auth/register`.
-- [ ] Normalize auth environment variable documentation.
-- [ ] Fix text encoding artifacts in README and UI copy.
-- [ ] Add listing Prisma models.
-- [ ] Create and run listing migration.
-- [ ] Add seed data for users and sample listings.
-- [ ] Implement `GET /api/listings`.
-- [ ] Implement `POST /api/listings`.
-- [ ] Implement `GET /api/listings/[id]`.
-- [ ] Implement `PATCH /api/listings/[id]`.
-- [ ] Implement `DELETE /api/listings/[id]` or archive behavior.
-- [ ] Replace public listings placeholder with a real listing browse page.
-- [ ] Replace listing detail placeholder with real listing details.
-- [ ] Replace owner new-listing placeholder with a real create form.
-- [ ] Enforce owner/listing authorization on the server.
+### Listing Schema & Models
+- [x] `Listing` model with full field set (pricing, capacity, map, status, denormalized ratings)
+- [x] `ListingImage`, `ListingAmenity`, `Amenity` models
+- [x] `Highlight`, `SleepingArrangement`, `ThingToKnow` sub-models
+- [x] `SavedListing` model
+- [x] `Review` model with 6 category scores
+- [x] `BookingRequest` model with `RequestStatus` enum
+- [x] `HostPersonalDetail` model
+- [x] `ListingStatus` enum (`ACTIVE`, `DRAFT`, `RENTED`)
+- [x] `RoomType`, `GenderPreference`, `Furnishing` enums
+- [x] DB indexes on city/locality, rent, roomType, isAvailable
 
-## Auth And Users
+### Listing APIs
+- [x] `GET /api/listings` — browse with filters and pagination
+- [x] `POST /api/listings` — create listing (validates, upserts amenities, uploads images)
+- [x] `GET /api/listings/[id]` — full listing detail via `getListingById`
+- [x] `PATCH /api/listings/[id]` — update listing (owner-guarded)
+- [x] `DELETE /api/listings/[id]` — delete listing + Cloudinary cleanup
+- [x] `PATCH /api/listings/[id]/status` — mark RENTED or ACTIVE
+- [x] `POST /api/listings/[id]/contact-click` — fire-and-forget analytics
+- [x] `GET /api/listings/[id]/booking-requests` — owner: list all requests
+- [x] `POST /api/listings/[id]/booking-requests` — user: submit new request
+- [x] `PATCH /api/booking-requests/[requestId]` — owner: accept or reject
+- [x] `POST /api/listings/[id]/reviews` — submit/update review (eligibility-gated)
+- [x] `GET /api/listings/[id]/review-eligibility` — check review gate
+- [x] `GET /api/listings/my` — owner: own listings list
+- [x] `POST /api/upload` — Cloudinary image upload
 
-- [ ] Validate signup fields: name, email, password length, password strength.
-- [ ] Return consistent API errors from auth endpoints.
-- [ ] Add profile page route at `/dashboard/profile`.
-- [ ] Implement `/api/user` for profile reads/updates.
-- [ ] Add role upgrade path for first-time owners.
-- [ ] Decide whether `OWNER` is manually assigned or automatic after listing creation.
-- [ ] Add forgot-password flow or remove inactive link from login UI.
+### Booking Request System
+- [x] User can submit a booking request with optional move-in date, guests, message
+- [x] 409 returned if user already has a PENDING request for the same listing
+- [x] Owner sees all requests per listing with requester info
+- [x] Accept in `$transaction`: mark request ACCEPTED + listing RENTED + auto-reject competing requests
+- [x] Reject: set status REJECTED, respondedAt timestamp
+- [x] Cache revalidated via `revalidatePath` on accept/reject
+- [x] `GET /api/user/booking-requests` — user views own request history
 
-## Listings
+### Reviews
+- [x] Six-category rating form (Cleanliness, Accuracy, Check-in, Communication, Location, Value)
+- [x] Overall rating = average of 6 categories
+- [x] Eligibility gate: must have ACCEPTED BookingRequest
+- [x] One review per user per listing (upsert with `@@unique([listingId, userId])`)
+- [x] Denormalized `avg*` aggregates on `Listing`, recomputed in `$transaction`
+- [x] Review form modal (`components/listing-details/ReviewFormModal.tsx`)
 
-- [ ] Define listing fields required for MVP.
-- [ ] Add enums for room type, gender preference, and furnishing.
-- [ ] Add amenities model and join table.
-- [ ] Add listing image model.
-- [ ] Add indexes for city, locality, rent, availability, and created date.
-- [ ] Build listing card component.
-- [ ] Build listing filters.
-- [ ] Build listing sorting.
-- [ ] Add empty state for no results.
-- [ ] Add loading and error states.
-- [ ] Add owner "my listings" page.
-- [ ] Add edit listing page.
-- [ ] Add mark rented/unavailable action.
+### Contact Owner
+- [x] WhatsApp deep link (wa.me) from `User.whatsappNumber`
+- [x] Call CTA from `User.phone`
+- [x] `contactClickCount` incremented server-side on contact CTA click
 
-## Uploads
+### User Profile
+- [x] `GET /api/user` — read own profile (includes phone, whatsappNumber)
+- [x] `PATCH /api/user` — update name, image, phone, whatsappNumber
+- [x] Host profile fields on schema: `responseRate`, `responseTimeLabel`, `isSuperhost`, `yearsHosting`, `joinedYear`
 
-- [ ] Choose final upload provider configuration.
-- [ ] Implement `/api/upload`.
-- [ ] Validate file size and MIME type.
-- [ ] Store Cloudinary URL and public ID.
-- [ ] Support multiple images per listing.
-- [ ] Add image deletion cleanup.
-- [ ] Add default image fallback for listings without photos.
+### Owner Pages
+- [x] Owner dashboard
+- [x] Owner "My Listings" page
+- [x] Add listing form
+- [x] Owner booking-requests page
 
-## Dashboard
+### Public Pages
+- [x] Home page
+- [x] Listings browse page
+- [x] Listing detail page
+- [x] Developers portfolio page
 
-- [ ] Replace static dashboard stats with database counts.
-- [ ] Add recent listing activity.
-- [ ] Link all quick actions to implemented pages.
-- [ ] Hide or disable unavailable dashboard actions until implemented.
-- [ ] Add owner-specific dashboard states.
-- [ ] Add renter-specific saved/search states later.
+---
 
-## Quality
+## 🚧 In Progress
 
-- [ ] Add TypeScript types in `types/index.ts`.
-- [ ] Remove or implement empty `lib/db.ts`.
-- [ ] Add Prisma seed script.
-- [ ] Add lint fixes for current UI text and formatting.
-- [ ] Add API tests for auth registration and listing permissions.
-- [ ] Add component tests or smoke tests for auth pages.
-- [ ] Add end-to-end happy path: signup, login, create listing, browse listing.
-- [ ] Confirm production build with `npm run build`.
+- [ ] User profile page UI (`/user/dashboard`)
+- [ ] Saved listings UI (schema ready, API + page not done)
 
-## Phase 2
+---
 
-- [ ] Saved/bookmarked listings.
-- [ ] Reviews and star ratings.
-- [ ] Report listing flow.
-- [ ] Admin moderation page.
-- [ ] Email alerts for saved searches.
-- [ ] Recently viewed listings.
-- [ ] Listing expiry and auto-unpublish.
-- [ ] WhatsApp/contact-owner redirect tracking.
+## 📋 Planned / Roadmap
+
+### Short Term
+- [ ] Design consistency pass across owner/user pages
+- [ ] Framer Motion page transitions
+- [ ] Server-side validation hardening on `/api/auth/register`
+- [ ] Edit listing page UI
+
+### Phase 2: Engagement
+- [ ] Saved/bookmarked listings (full API + UI)
+- [ ] Report listing flow
+- [ ] Admin dashboard and moderation tools
+
+### Phase 3: Growth
+- [ ] Email alerts for saved searches / cities
+- [ ] Recently viewed listings history
+- [ ] Listing expiry and auto-unpublish after N days
+- [ ] Better ranking / recommendations
+
+---
 
 ## Documentation Maintenance
 
-- [ ] Update `Docs/API.md` whenever an API route is implemented.
-- [ ] Update `Docs/DATABASE.md` whenever Prisma schema changes.
-- [ ] Update `Docs/ARCHITECTURE.md` when routing, auth, or major module boundaries change.
-- [ ] Update `Docs/PRD.md` when product scope changes.
-- [ ] Keep this task plan aligned with actual code, not only intended features.
+- [ ] Update `Docs/API.md` whenever an API route is added or changed
+- [ ] Update `Docs/DATABASE.md` whenever Prisma schema changes
+- [ ] Update `Docs/ARCHITECTURE.md` when routing or module boundaries change
+- [ ] Update `Docs/PRD.md` when product scope changes
+- [ ] Keep this task plan aligned with actual code, not only intended features

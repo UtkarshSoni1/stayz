@@ -14,64 +14,118 @@ The product is unapologetically **Gen Z-first**:
 
 - Mobile-first design
 - Instant search, no page reloads
-- Gen Z filters (co-ed friendly, pet-friendly, work-from-home ready)
+- Filters that match real living preferences (co-ed, furnished, PG, single room)
 - No unnecessary steps between "find room" and "contact owner"
 
 ---
 
 ## ⚙️ Tech Stack
 
+![Skills](https://skillicons.dev/icons?i=nextjs,ts,tailwindcss,postgres,prisma,vercel)
+
 | Layer | Technology |
-|-------|------------|
-| **Framework** | Next.js 14 (App Router) |
-| **Styling** | Tailwind CSS |
-| **Database** | PostgreSQL |
-| **ORM** | Prisma |
-| **Auth** | NextAuth.js |
+|---|---|
+| **Framework** | Next.js 16.2.9 (App Router) |
+| **Language** | TypeScript 5 |
+| **Styling** | Tailwind CSS 4 + shadcn/radix-ui primitives |
+| **Database** | PostgreSQL (hosted on Supabase) |
+| **ORM** | Prisma 6 |
+| **Auth** | Auth.js / NextAuth v5 (beta) — credentials + Google OAuth |
 | **Image Storage** | Cloudinary |
-| **Validation** | Zod |
-| **Deployment** | Vercel + Neon (DB) |
+| **Animations** | Framer Motion |
+| **Icons** | Lucide React, React Icons |
+| **Deployment** | Vercel |
 
 ---
 
 ## ✨ Features
 
-### 🔍 Discovery & Listings
+### ✅ Shipped — 🚧 In Progress — 📋 Planned
 
-- Browse rooms with city, price, and type filters
-- Search by locality, pincode, or landmark
-- Listing detail page with photo gallery, amenities, and map
-- Gender preference filter (Male / Female / Any)
-- Furnishing filter (Furnished / Semi / Bare)
-- Sort by: Price, Newest, Top Rated
+#### 🔍 Discovery & Listings
 
-### 🏘️ Listing Management
+| Feature | Status |
+|---|---|
+| Browse listings (city, locality, type) | ✅ |
+| Price range, gender preference, furnishing filters | ✅ |
+| Sort by newest / price asc / price desc | ✅ |
+| Listing detail page with photo gallery | ✅ |
+| Highlights section (Self check-in, Great location, etc.) | ✅ |
+| Sleeping arrangements section | ✅ |
+| Things to Know section | ✅ |
+| Amenities display | ✅ |
+| Map section (static image, lat/lng stored) | ✅ |
+| Paginated results (default 12/page, max 50) | ✅ |
 
-- Owners can create, edit, and delete listings
-- Upload multiple photos per listing
-- Set amenities (WiFi, AC, Parking, Laundry, etc.)
-- Mark listing as available / rented
+#### 🏘️ Listing Management
 
-### 👤 Users & Profiles
+| Feature | Status |
+|---|---|
+| Create listing (owner form → API → DB) | ✅ |
+| Multi-image upload via Cloudinary | ✅ |
+| Set amenities (upserted by name) | ✅ |
+| Draft / Active status toggle on create | ✅ |
+| Edit listing (PATCH) | ✅ |
+| Delete listing + Cloudinary cleanup | ✅ |
+| Duplicate listing | ✅ |
+| Mark listing RENTED / ACTIVE (status toggle) | ✅ |
+| Auto-promote USER → OWNER role on first listing | ✅ |
+| Owner "My Listings" page | ✅ |
+| Owner dashboard with stats | ✅ |
 
-- Sign up / Login (Email + Google OAuth)
-- Renter profile with saved searches
-- Owner profile with all active listings
-- Edit profile, avatar, contact info
+#### 💬 Booking Requests *(newest system — commit 6bc6867)*
 
-### 🔖 Engagement
+| Feature | Status |
+|---|---|
+| User submits booking request (move-in date, guests, message) | ✅ |
+| Duplicate PENDING request blocked (409) | ✅ |
+| Owner views all requests per listing with requester info | ✅ |
+| Owner accepts request → listing auto-marked RENTED | ✅ |
+| Owner accepts → all other PENDING requests auto-rejected | ✅ |
+| Owner rejects individual request | ✅ |
+| User views their own booking request history + status | ✅ |
+| Cache revalidation on status change | ✅ |
 
-- Bookmark / save listings
-- Leave reviews and star ratings (renters only)
-- Contact owner via in-app message or WhatsApp redirect
-- Report a listing
+#### ⭐ Reviews
 
-### 🔔 Extras (Phase 2)
+| Feature | Status |
+|---|---|
+| Per-category ratings: Cleanliness, Accuracy, Check-in, Communication, Location, Value | ✅ |
+| Overall rating computed as average of 6 categories | ✅ |
+| Review eligibility gated by accepted booking request | ✅ |
+| Review upsert (one review per user per listing) | ✅ |
+| Denormalized rating aggregates on Listing (fast reads) | ✅ |
+| Review form modal (frontend) | ✅ |
+| Review eligibility check endpoint | ✅ |
 
-- Email alerts for new listings in saved city
-- "Recently Viewed" listing history
-- Listing expiry & auto-unpublish after 30 days
-- Admin panel for moderation
+#### 📞 Contact Owner
+
+| Feature | Status |
+|---|---|
+| WhatsApp deep link (wa.me) | ✅ |
+| Call CTA (tel: link) | ✅ |
+| Contact-click analytics (fire-and-forget counter) | ✅ |
+| `phone` and `whatsappNumber` fields on User | ✅ |
+
+#### 👤 Profiles & Saves
+
+| Feature | Status |
+|---|---|
+| Auth (email/password + Google OAuth) | ✅ |
+| `GET /api/user` — read own profile | ✅ |
+| `PATCH /api/user` — update name, image, phone, whatsappNumber | ✅ |
+| User profile page (UI) | 🚧 |
+| SavedListing model (schema) | ✅ |
+| Saved listings page (UI + API) | 🚧 |
+| User dashboard | 🚧 |
+
+#### 📊 Admin
+
+| Feature | Status |
+|---|---|
+| Admin route group `app/(admin)` | 📋 |
+| Admin dashboard / moderation UI | 📋 |
+| Report listings | 📋 |
 
 ---
 
@@ -80,19 +134,50 @@ The product is unapologetically **Gen Z-first**:
 ```
 stayz/
 ├── app/
-│   ├── (auth)/           # Login, Signup pages
-│   ├── (dashboard)/      # Owner dashboard
-│   ├── listings/         # Browse + Detail pages
-│   └── api/              # All API routes
-├── components/           # Reusable UI components
+│   ├── (auth)/             # /login, /signup
+│   ├── (public)/
+│   │   ├── listings/       # /listings (browse) + /listings/[id] (detail)
+│   │   └── developers/     # /developers (team portfolio)
+│   ├── (owner)/
+│   │   └── owner/
+│   │       ├── dashboard/        # /owner/dashboard
+│   │       ├── my-listings/      # /owner/my-listings
+│   │       ├── add-listing/      # /owner/add-listing
+│   │       └── booking-requests/ # /owner/booking-requests
+│   ├── (user)/
+│   │   └── user/
+│   │       ├── dashboard/   # /user/dashboard
+│   │       ├── saved/       # /user/saved (WIP)
+│   │       ├── payments/    # /user/payments (WIP)
+│   │       └── agreement/   # /user/agreement (WIP)
+│   ├── (admin)/
+│   │   └── admin/dashboard/ # /admin/dashboard (planned)
+│   └── api/
+│       ├── auth/            # NextAuth handler + /register
+│       ├── listings/        # CRUD + /[id]/reviews, booking-requests,
+│       │                    #   status, contact-click, review-eligibility,
+│       │                    #   images, duplicate
+│       ├── booking-requests/[requestId]/ # PATCH (accept/reject)
+│       ├── upload/          # Cloudinary upload handler
+│       └── user/            # GET/PATCH profile + /booking-requests
+├── components/              # Reusable UI components
+│   ├── listing-details/     # Detail-page section components
+│   ├── home/                # Homepage-specific components
+│   ├── navbar/              # AppNavBar
+│   └── ui/                  # shadcn-style primitives
 ├── lib/
-│   ├── db.ts             # Prisma client
-│   ├── auth.ts           # NextAuth config
-│   └── utils.ts          # Shared helpers
+│   ├── auth.ts              # Auth.js configuration
+│   ├── auth-helpers.ts      # requireAuth() helper
+│   ├── prisma.ts            # Prisma client singleton
+│   ├── listing-service.ts   # getListingById, updateListing, deleteListing,
+│   │                        #   markListingRented, markListingAvailable
+│   ├── cloudinary.ts        # Upload + delete helpers
+│   └── validations/         # Server-side listing validation
 ├── prisma/
-│   ├── schema.prisma     # DB schema
-│   └── seed.ts           # Dev seed data
-└── types/                # Shared TypeScript types
+│   ├── schema.prisma        # Full DB schema
+│   └── seed.ts              # Dev seed data
+├── types/                   # Shared TypeScript types
+└── proxy.ts                 # Auth middleware (Next.js Middleware)
 ```
 
 ---
@@ -100,54 +185,70 @@ stayz/
 ## 🚀 Getting Started
 
 ```bash
-# Clone the repo
-git clone https://github.com/yourteam/stayz.git
+# 1. Clone the repo
+git clone https://github.com/UtkarshSoni1/stayz.git
 cd stayz
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Set up environment variables
+# 3. Set up environment variables
 cp .env.example .env
-# Fill in: DATABASE_URL, NEXTAUTH_SECRET, GOOGLE_CLIENT_ID, CLOUDINARY keys
+# Fill in the values — see .env.example for all required keys
+```
 
-# Run DB migrations
+**Required `.env` variables:**
+
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | Pooled PostgreSQL connection (Neon recommended) |
+| `DIRECT_URL` | Direct PostgreSQL connection (used by Prisma migrate) |
+| `AUTH_SECRET` | 32-character secret for Auth.js JWT signing |
+| `NEXTAUTH_URL` | Base URL, e.g. `http://localhost:3000` |
+| `AUTH_GOOGLE_ID` | Google OAuth client ID |
+| `AUTH_GOOGLE_SECRET` | Google OAuth client secret |
+| `NEXT_PUBLIC_APP_URL` | Public base URL (used in client code) |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+
+
+```bash
+# 4. Run DB migrations
 npx prisma migrate dev
 
-# Seed dev data
+# 5. Seed dev data
 npx prisma db seed
 
-# Start dev server
+# 6. Start the dev server
 npm run dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
 ## 🌿 Git Workflow
 
 ```
-main  →  production only
-dev   →  merge target for all features
-
-Branch naming:
-feat/listing-search
-feat/auth-google
-fix/image-upload-bug
-db/add-review-table
+main  →  production (protected)
+feat/ →  feature branches
+fix/  →  bug fix branches
+db/   →  schema/migration branches
 ```
 
 - All merges via Pull Request
 - 1 peer review required
-- No direct push to `main` or `dev`
+- No direct push to `main`
 
 ---
 
 ## 👥 Team
 
-| Name | Feature Ownership |
-|------|-------------------|
-| [Utkarsh Soni](https://github.com/UtkarshSoni1)| To be updated... |
-| [Raj Kewat](https://github.com/RAJ-TECH-11)| To be updated... |
+| Name | GitHub |
+|---|---|
+| Utkarsh Soni | [@UtkarshSoni1](https://github.com/UtkarshSoni1) |
+| Raj Kewat | [@RAJ-TECH-11](https://github.com/RAJ-TECH-11) |
 
 ---
 

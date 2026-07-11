@@ -1,16 +1,12 @@
 # StayZ Database Documentation
 
-StayZ uses PostgreSQL with Prisma. The current schema supports authentication and users. Product models for listings, images, reviews, bookmarks, and booking/contact workflows are planned but not yet present.
+StayZ uses PostgreSQL with Prisma 6. All models are defined in `prisma/schema.prisma`.
+
+---
 
 ## Configuration
 
-`prisma/schema.prisma`
-
 ```prisma
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -18,209 +14,310 @@ datasource db {
 }
 ```
 
-Environment variables:
+- `DATABASE_URL` — pooled connection string (PgBouncer-compatible; used at runtime)
+- `DIRECT_URL` — direct connection string (used by `prisma migrate dev`)
 
-- `DATABASE_URL`: pooled or standard PostgreSQL connection string used by Prisma Client.
-- `DIRECT_URL`: direct PostgreSQL connection string, commonly used for migrations with hosted providers.
+---
 
-## Current Models
+## Models
 
 ### `User`
 
-Stores application users and credential password hashes.
+Stores application users, credential hashes, and host profile fields.
 
 | Field | Type | Notes |
-| --- | --- | --- |
-| `id` | `String` | Primary key, generated with `cuid()`. |
-| `name` | `String?` | Optional display name. |
-| `email` | `String` | Unique login identity. |
-| `emailVerified` | `DateTime?` | Used by Auth.js email/OAuth flows. |
-| `password` | `String?` | bcrypt hash for credentials users; null for OAuth-only users. |
-| `image` | `String?` | Avatar URL, often from OAuth profile. |
-| `role` | `Role` | Defaults to `USER`. |
-| `createdAt` | `DateTime` | Defaults to current time. |
-| `updatedAt` | `DateTime` | Auto-updated by Prisma. |
+|---|---|---|
+| `id` | `String` | PK, `cuid()` |
+| `name` | `String?` | Display name |
+| `email` | `String` | Unique |
+| `emailVerified` | `DateTime?` | Auth.js OAuth flow |
+| `password` | `String?` | bcrypt hash; null for OAuth-only users |
+| `image` | `String?` | Avatar URL |
+| `role` | `Role` | Default `USER` |
+| `phone` | `String?` | Shown as "Call Owner" CTA |
+| `whatsappNumber` | `String?` | Shown as "Message on WhatsApp" CTA |
+| `responseRate` | `String?` | Host profile display (e.g. "100%") |
+| `responseTimeLabel` | `String?` | Host profile display (e.g. "within an hour") |
+| `isSuperhost` | `Boolean` | Default `false` |
+| `yearsHosting` | `Int?` | Host profile display |
+| `joinedYear` | `Int?` | Account creation year (display only) |
+| `createdAt` | `DateTime` | Default `now()` |
+| `updatedAt` | `DateTime` | Auto-updated |
 
-Relations:
+Relations: `accounts`, `sessions`, `listings`, `reviews`, `savedListings`, `hostPersonalDetails`, `bookingRequests`
 
-- `accounts Account[]`
-- `sessions Session[]`
+---
 
-### `Account`
+### `HostPersonalDetail`
 
-Required by the Auth.js Prisma adapter for OAuth provider account links.
+Fun facts shown on the host profile section (e.g. "🎂 My birthday is in March").
 
-Important constraints:
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | PK |
+| `userId` | `String` | FK → User |
+| `icon` | `String` | Material Symbols icon name |
+| `text` | `String` | Display text |
 
-- `@@unique([provider, providerAccountId])`
-- Cascades on user delete.
+Index: `[userId]`
 
-### `Session`
+---
 
-Required by the Auth.js Prisma adapter. The app currently uses JWT sessions, but this model remains part of the adapter schema.
+### `Account` / `Session` / `VerificationToken`
 
-Important constraints:
+Required by the Auth.js Prisma adapter. Standard NextAuth v5 schema — do not modify column names.
 
-- `sessionToken` is unique.
-- Cascades on user delete.
+- `Account` — OAuth provider account links. `@@unique([provider, providerAccountId])`. Cascades on user delete.
+- `Session` — Session records (JWT strategy; table is present per adapter requirements). Cascades on user delete.
+- `VerificationToken` — Email verification tokens. `@@unique([identifier, token])`.
 
-### `VerificationToken`
+---
 
-Required by the Auth.js Prisma adapter for verification flows.
+### `Listing`
 
-Important constraints:
+Core product model.
 
-- `token` is unique.
-- `@@unique([identifier, token])`
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | PK, `cuid()` |
+| `ownerId` | `String` | FK → User |
+| `title` | `String` | |
+| `description` | `String` | |
+| `descriptionExtended` | `String?` | "Show more" expanded text |
+| `propertyType` | `String` | Default `"Entire apartment"` |
+| `city` | `String` | |
+| `locality` | `String` | |
+| `address` | `String?` | |
+| `pincode` | `String?` | |
+| `monthlyRent` | `Int` | Core rental field |
+| `deposit` | `Int?` | Security deposit |
+| `pricePerNight` | `Int?` | Airbnb-style nightly rate (detail page display) |
+| `guests` | `Int` | Default `1` |
+| `bedrooms` | `Int` | Default `1` |
+| `beds` | `Int` | Default `1` |
+| `bathrooms` | `Int` | Default `1` |
+| `mapLat` | `Float?` | |
+| `mapLng` | `Float?` | |
+| `mapImageUrl` | `String?` | |
+| `roomType` | `RoomType` | |
+| `genderPreference` | `GenderPreference` | Default `ANY` |
+| `furnishing` | `Furnishing` | |
+| `isAvailable` | `Boolean` | Default `false` |
+| `status` | `ListingStatus` | Default `DRAFT` |
+| `contactClickCount` | `Int` | Default `0`; fire-and-forget analytics |
+| `reviewCount` | `Int` | Default `0`; denormalized |
+| `avgRating` | `Float` | Default `0`; denormalized |
+| `avgCleanliness` | `Float` | Default `0`; denormalized |
+| `avgAccuracy` | `Float` | Default `0`; denormalized |
+| `avgCheckIn` | `Float` | Default `0`; denormalized |
+| `avgCommunication` | `Float` | Default `0`; denormalized |
+| `avgLocation` | `Float` | Default `0`; denormalized |
+| `avgValue` | `Float` | Default `0`; denormalized |
+| `createdAt` | `DateTime` | Default `now()` |
+| `updatedAt` | `DateTime` | Auto-updated |
 
-### `Role`
+Indexes: `[city, locality]`, `[monthlyRent]`, `[roomType]`, `[isAvailable]`
+
+Relations: `owner`, `amenities`, `images`, `reviews`, `saves`, `highlights`, `sleepingArrangements`, `thingsToKnow`, `bookingRequests`
+
+---
+
+### `ListingImage`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | PK |
+| `listingId` | `String` | FK → Listing |
+| `url` | `String` | Cloudinary secure URL |
+| `alt` | `String?` | Accessibility / SEO alt text |
+| `publicId` | `String?` | Cloudinary public ID (for deletion) |
+| `sortOrder` | `Int` | Default `0` |
+| `createdAt` | `DateTime` | |
+
+Cascades on listing delete.
+
+---
+
+### `Highlight`
+
+Curated highlight cards shown on the detail page (e.g. "Self check-in", "Great location").
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | PK |
+| `listingId` | `String` | FK → Listing |
+| `icon` | `String` | Material Symbols icon name |
+| `title` | `String` | |
+| `description` | `String` | |
+| `sortOrder` | `Int` | Default `0` |
+
+Index: `[listingId]`
+
+---
+
+### `SleepingArrangement`
+
+Entries shown in the "Where you'll sleep" section.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | PK |
+| `listingId` | `String` | FK → Listing |
+| `icon` | `String` | e.g. `"king_bed"` |
+| `name` | `String` | e.g. `"Bedroom"` |
+| `description` | `String` | e.g. `"1 king bed"` |
+| `sortOrder` | `Int` | Default `0` |
+
+Index: `[listingId]`
+
+---
+
+### `ThingToKnow`
+
+House rules, cancellation policy, check-in instructions — shown in "Things to know".
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | PK |
+| `listingId` | `String` | FK → Listing |
+| `icon` | `String` | Material Symbols icon name |
+| `title` | `String` | |
+| `content` | `String` | |
+| `sortOrder` | `Int` | Default `0` |
+
+Index: `[listingId]`
+
+---
+
+### `Amenity`
+
+Global amenity catalogue. Amenities are upserted by name when a listing is created.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | PK |
+| `name` | `String` | Unique |
+| `icon` | `String?` | Material Symbols icon name |
+| `description` | `String?` | Short display description |
+
+---
+
+### `ListingAmenity`
+
+Junction table — `@@id([listingId, amenityId])`.
+
+---
+
+### `SavedListing`
+
+Bookmarked listings. `@@id([userId, listingId])`.
+
+| Field | Type | Notes |
+|---|---|---|
+| `userId` | `String` | FK → User |
+| `listingId` | `String` | FK → Listing |
+| `createdAt` | `DateTime` | |
+
+Schema is fully implemented; the UI/API for saved listings is in progress.
+
+---
+
+### `Review`
+
+Per-review category scores. Listing-level averages are denormalized onto `Listing.avg*`.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | PK |
+| `listingId` | `String` | FK → Listing |
+| `userId` | `String` | FK → User |
+| `rating` | `Int` | Overall 1–5 (computed average of 6 categories) |
+| `cleanliness` | `Int` | 1–5 |
+| `accuracy` | `Int` | 1–5 |
+| `checkIn` | `Int` | 1–5 |
+| `communication` | `Int` | 1–5 |
+| `location` | `Int` | 1–5 |
+| `value` | `Int` | 1–5 |
+| `comment` | `String?` | Optional text |
+| `createdAt` | `DateTime` | |
+| `updatedAt` | `DateTime` | Auto-updated |
+
+Constraint: `@@unique([listingId, userId])` — one review per user per listing.
+
+**Aggregate update flow:** Every review upsert triggers a Prisma `$transaction` that re-aggregates all category averages and `reviewCount`, then writes them back to `Listing`.
+
+---
+
+### `BookingRequest`
+
+Represents a user's request to book/rent a listing.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | PK |
+| `listingId` | `String` | FK → Listing |
+| `userId` | `String` | FK → User (requester) |
+| `status` | `RequestStatus` | Default `PENDING` |
+| `moveInDate` | `DateTime?` | Requested move-in date |
+| `guests` | `Int?` | Number of guests |
+| `message` | `String?` | Optional message to owner |
+| `createdAt` | `DateTime` | |
+| `respondedAt` | `DateTime?` | Set when owner accepts/rejects |
+
+Index: `[listingId, userId, status]`
+
+**Business rules:**
+- One user can have at most one PENDING request per listing at a time
+- On ACCEPTED: listing is marked RENTED + all other PENDING requests for the same listing are auto-REJECTED (single `$transaction`)
+- Owners cannot request their own listing
+
+---
+
+## Enums
 
 ```prisma
-enum Role {
-  USER
-  OWNER
-  ADMIN
-}
+enum Role            { USER | OWNER | ADMIN }
+enum ListingStatus   { ACTIVE | DRAFT | RENTED }
+enum RoomType        { SINGLE | SHARED | PG | FLAT }
+enum GenderPreference { MALE | FEMALE | ANY }
+enum Furnishing      { FURNISHED | SEMI_FURNISHED | UNFURNISHED }
+enum RequestStatus   { PENDING | ACCEPTED | REJECTED }
 ```
 
-Current behavior:
-
-- New users created through `/api/auth/register` receive the default `USER` role.
-- Dashboard displays the current role.
-- Owner/admin authorization rules are not implemented yet.
-
-## Planned Product Schema
-
-The README describes listings, amenities, photos, bookmarks, reviews, and owner workflows. A practical next schema direction is below.
-
-### Suggested `Listing`
-
-```prisma
-model Listing {
-  id               String      @id @default(cuid())
-  ownerId          String
-  title            String
-  description      String
-  city             String
-  locality         String
-  address          String?
-  pincode          String?
-  monthlyRent      Int
-  deposit          Int?
-  roomType         RoomType
-  genderPreference GenderPreference @default(ANY)
-  furnishing       Furnishing
-  isAvailable      Boolean     @default(true)
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-
-  owner            User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  images           ListingImage[]
-  amenities        ListingAmenity[]
-  reviews          Review[]
-}
-```
-
-### Suggested Supporting Enums
-
-```prisma
-enum RoomType {
-  SINGLE
-  SHARED
-  PG
-  FLAT
-}
-
-enum GenderPreference {
-  MALE
-  FEMALE
-  ANY
-}
-
-enum Furnishing {
-  FURNISHED
-  SEMI_FURNISHED
-  UNFURNISHED
-}
-```
-
-### Suggested Image and Amenity Models
-
-```prisma
-model ListingImage {
-  id        String   @id @default(cuid())
-  listingId String
-  url       String
-  publicId  String?
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-
-  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-}
-
-model Amenity {
-  id       String @id @default(cuid())
-  name     String @unique
-  icon     String?
-  listings ListingAmenity[]
-}
-
-model ListingAmenity {
-  listingId String
-  amenityId String
-
-  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
-
-  @@id([listingId, amenityId])
-}
-```
-
-### Suggested Engagement Models
-
-```prisma
-model SavedListing {
-  userId    String
-  listingId String
-  createdAt DateTime @default(now())
-
-  @@id([userId, listingId])
-}
-
-model Review {
-  id        String   @id @default(cuid())
-  listingId String
-  userId    String
-  rating    Int
-  comment   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-}
-```
+---
 
 ## Migration Workflow
 
-Use this workflow when schema changes are added:
-
 ```bash
-npx prisma migrate dev --name add_listings
+# After schema changes:
+npx prisma migrate dev --name describe_the_change
 npx prisma generate
-```
 
-For local seeding:
-
-```bash
+# Seed dev data:
 npx prisma db seed
 ```
 
-`prisma/seed.ts` is currently empty, so seed data still needs to be written.
+Seed script: `prisma/seed.ts`. Run command configured in `package.json` under `"prisma": { "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts" }`.
 
-## Data Integrity Rules To Add
+---
 
-- Validate unique listing ownership before update/delete.
-- Ensure review rating stays within an accepted range, such as `1` to `5`.
-- Use database indexes for common listing filters: city, locality, rent, room type, availability.
-- Avoid hard deletes for production listings if audit/moderation history is needed.
-- Store Cloudinary public IDs alongside URLs for cleanup.
+## Indexing Strategy
+
+| Index | Purpose |
+|---|---|
+| `[city, locality]` | Primary listing filter — most searches include city |
+| `[monthlyRent]` | Price range filter |
+| `[roomType]` | Room type filter |
+| `[isAvailable]` | Default browse query (only available listings) |
+| `[listingId, userId, status]` on BookingRequest | Eligibility and duplicate-check queries |
+| `[userId]` on HostPersonalDetail | Profile queries |
+| `[listingId]` on Highlight, SleepingArrangement, ThingToKnow | Joined detail-page reads |
+
+---
+
+## Data Integrity Notes
+
+- All listing sub-models (`ListingImage`, `Highlight`, `SleepingArrangement`, `ThingToKnow`, `ListingAmenity`, `BookingRequest`, `Review`) cascade-delete with the parent `Listing`
+- Cloudinary `publicId` stored alongside `url` on `ListingImage` to enable cleanup on delete
+- Review scores validated server-side (1–5); invalid values rejected with `400`
+- Booking request uniqueness enforced at application level (check then create) — consider a database-level unique constraint on `(listingId, userId)` filtered to `PENDING` status for extra safety
