@@ -316,9 +316,12 @@ export default function BookingRequestsPage() {
                     {/* Request details */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-foreground">
+                        <Link
+                          href={`/users/${req.user.id}`}
+                          className="text-sm font-semibold text-foreground hover:text-primary transition-colors"
+                        >
                           {req.user.name ?? req.user.email ?? "Guest"}
-                        </span>
+                        </Link>
                         <StatusBadge status={req.status} />
                       </div>
 

@@ -20,13 +20,13 @@ import {
   Phone,
   Shield,
   ChevronRight,
-  CreditCard,
   Download,
   Search,
   Clock,
   CheckCircle2,
   TrendingUp,
   Building2,
+  UserIcon,
 } from "lucide-react";
 import { AppNavBar } from "@/components/navbar/AppNavBar";
 
@@ -156,17 +156,19 @@ export default async function UserDashboardPage() {
         {/* ── Welcome Banner ─────────────────────────────────────────────────── */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
+            <Link href={`/users/${user.id}`} className="shrink-0">
             {user.image ? (
               <img
                 src={user.image}
                 alt={user.name ?? "Profile"}
-                className="h-14 w-14 rounded-2xl object-cover ring-2 ring-white/10"
+                className="h-14 w-14 rounded-2xl object-cover ring-2 ring-white/10 hover:ring-white/25 transition-all"
               />
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white text-lg font-bold ring-2 ring-white/10">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white text-lg font-bold ring-2 ring-white/10 hover:ring-white/25 transition-all">
                 {initials}
               </div>
             )}
+            </Link>
             <div>
               <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-0.5">Welcome back</p>
               <h1 className="text-2xl font-bold text-white">
@@ -394,18 +396,11 @@ export default async function UserDashboardPage() {
                 accent="bg-rose-500/10 text-rose-400"
               />
               <QuickAction
-                icon={CreditCard}
-                label="Pay Rent"
-                desc="Make your rent payment"
-                href="/user/payments"
-                accent="bg-emerald-500/10 text-emerald-400"
-              />
-              <QuickAction
-                icon={Download}
-                label="Download Agreement"
-                desc="Get your rental agreement PDF"
-                href="/user/agreement"
-                accent="bg-blue-500/10 text-blue-400"
+                icon={UserIcon}
+                label="View Profile"
+                desc="See your public profile page"
+                href={`/users/${user.id}`}
+                accent="bg-teal-500/10 text-teal-400"
               />
             </div>
           </Card>

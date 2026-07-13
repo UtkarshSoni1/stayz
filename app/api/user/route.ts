@@ -21,6 +21,7 @@ export async function GET() {
         name: true,
         email: true,
         image: true,
+        bio: true,
         role: true,
         createdAt: true,
         phone: true,
@@ -62,6 +63,7 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json() as {
       name?: string;
       image?: string;
+      bio?: string | null;
       phone?: string;
       whatsappNumber?: string;
     };
@@ -71,6 +73,7 @@ export async function PATCH(req: NextRequest) {
       data: {
         ...(body.name !== undefined && { name: body.name }),
         ...(body.image !== undefined && { image: body.image }),
+        ...(body.bio !== undefined && { bio: body.bio }),
         ...(body.phone !== undefined && { phone: body.phone }),
         ...(body.whatsappNumber !== undefined && { whatsappNumber: body.whatsappNumber }),
       },
@@ -79,6 +82,7 @@ export async function PATCH(req: NextRequest) {
         name: true,
         email: true,
         image: true,
+        bio: true,
         role: true,
         phone: true,
         whatsappNumber: true,
