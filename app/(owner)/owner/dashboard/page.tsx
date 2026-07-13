@@ -30,6 +30,7 @@ export default async function OwnerDashboardPage() {
       image: true,
       phone: true,
       whatsappNumber: true,
+      bio: true,
     },
   });
 

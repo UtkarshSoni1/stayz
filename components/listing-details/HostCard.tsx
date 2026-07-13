@@ -2,6 +2,7 @@
 
 import type { Host } from "@/types/listing-detail";
 import { Badge } from "./Badge";
+import Link from "next/link";
 
 interface HostCardProps {
   host: Host;
@@ -26,22 +27,26 @@ export function HostCard({ host }: HostCardProps) {
         <div>
           <div className="bg-[#111] rounded-2xl border border-white/10 p-6 flex gap-6">
             <div className="flex flex-col items-center shrink-0">
-              <div className="relative mb-3">
-                <img
-                  src={host.avatarUrl}
-                  alt={host.avatarAlt}
-                  className="w-24 h-24 rounded-full object-cover"
-                />
-                <span className="absolute bottom-0 right-0 w-7 h-7 bg-[#ff385c] rounded-full flex items-center justify-center border-2 border-[#111]">
-                  <span
-                    className="material-symbols-outlined text-white text-sm"
-                    style={{ fontVariationSettings: '"FILL" 1, "wght" 400, "GRAD" 0, "opsz" 20' }}
-                  >
-                    check
+              <Link href={`/owners/${host.id}`} className="group">
+                <div className="relative mb-3">
+                  <img
+                    src={host.avatarUrl}
+                    alt={host.avatarAlt}
+                    className="w-24 h-24 rounded-full object-cover group-hover:ring-2 group-hover:ring-primary/50 transition-all"
+                  />
+                  <span className="absolute bottom-0 right-0 w-7 h-7 bg-[#ff385c] rounded-full flex items-center justify-center border-2 border-[#111]">
+                    <span
+                      className="material-symbols-outlined text-white text-sm"
+                      style={{ fontVariationSettings: '"FILL" 1, "wght" 400, "GRAD" 0, "opsz" 20' }}
+                    >
+                      check
+                    </span>
                   </span>
-                </span>
-              </div>
-              <p className="text-xl font-semibold text-white mb-1">{host.name}</p>
+                </div>
+                <p className="text-xl font-semibold text-white mb-1 group-hover:text-primary transition-colors">
+                  {host.name}
+                </p>
+              </Link>
               {host.isSuperhost && (
                 <Badge className="bg-transparent text-white/90 normal-case tracking-normal font-semibold gap-1.5 px-0">
                   <span className="material-symbols-outlined text-base text-primary">emoji_events</span>

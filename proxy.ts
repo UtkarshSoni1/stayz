@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
 const PUBLIC_PATHS = ["/", "/listings", "/login", "/signup", "/forgot-password"];
 
 // Path prefixes that are always public
-const PUBLIC_PREFIXES = ["/listings/", "/api/", "/_next/", "/favicon", "/auth/"];
+const PUBLIC_PREFIXES = ["/listings/", "/api/", "/_next/", "/favicon", "/auth/", "/users/", "/owners/"];
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true;
@@ -51,7 +51,7 @@ export async function proxy(request: NextRequest) {
   // ── 3. Role-based access control ──────────────────────────────────────────
 
   // /admin/* — ADMIN only
-  if (pathname.startsWith("/admin")) {
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     if (role !== "ADMIN") {
       return NextResponse.redirect(
         new URL(getDashboardForRole(role), request.url)
@@ -61,7 +61,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // /owner/* — OWNER or ADMIN
-  if (pathname.startsWith("/owner")) {
+  if (pathname === "/owner" || pathname.startsWith("/owner/")) {
     if (role !== "OWNER" && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/user/dashboard", request.url));
     }
@@ -69,7 +69,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // /user/* — any authenticated user
-  if (pathname.startsWith("/user")) {
+  if (pathname === "/user" || pathname.startsWith("/user/")) {
     return NextResponse.next();
   }
 

@@ -33,6 +33,7 @@ interface UserProfile {
   image: string | null;
   phone: string | null;
   whatsappNumber: string | null;
+  bio: string | null;
 }
 
 interface DashboardClientProps {
@@ -80,13 +81,30 @@ export function DashboardClient({ summary, user }: DashboardClientProps) {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Banner */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Welcome back{user.name ? `, ${user.name.split(" ")[0]}` : ""}! 👋
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Here&apos;s what&apos;s happening with your StayZ account.
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Link href={`/owners/${user.id}`} className="shrink-0">
+              {user.image ? (
+                <img
+                  src={user.image}
+                  alt={user.name ?? "Profile"}
+                  className="h-14 w-14 rounded-2xl object-cover ring-2 ring-white/10 hover:ring-primary/40 transition-all"
+                />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white text-lg font-bold ring-2 ring-white/10 hover:ring-primary/40 transition-all">
+                  {(user.name?.[0] ?? user.email?.[0] ?? "O").toUpperCase()}
+                </div>
+              )}
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Welcome back{user.name ? `, ${user.name.split(" ")[0]}` : ""}! 👋
+              </h1>
+              <p className="mt-1 text-muted-foreground">
+                Here&apos;s what&apos;s happening with your StayZ account.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -130,6 +148,7 @@ export function DashboardClient({ summary, user }: DashboardClientProps) {
                   { type: "link", label: "My Listings", href: "/owner/my-listings", icon: List, desc: "Manage your properties" },
                   { type: "link", label: "Booking Requests", href: "/owner/booking-requests", icon: Inbox, desc: "Review guest requests" },
                   { type: "link", label: "Browse Stays", href: "/listings", icon: MapPin, desc: "Find your next stay" },
+                  { type: "link", label: "View Profile", href: `/owners/${user.id}`, icon: UserIcon, desc: "See your public profile" },
                   { type: "button", label: "Edit Profile", onClick: () => setIsProfileModalOpen(true), icon: UserIcon, desc: "Update your info" },
                 ].map((action, idx) => {
                   if (action.type === "button") {

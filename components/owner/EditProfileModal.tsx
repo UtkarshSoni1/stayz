@@ -18,6 +18,7 @@ interface UserProfile {
   image: string | null;
   phone: string | null;
   whatsappNumber: string | null;
+  bio?: string | null;
 }
 
 interface EditProfileModalProps {
@@ -31,6 +32,7 @@ export function EditProfileModal({ isOpen, onClose, initialUser }: EditProfileMo
   const [name, setName] = useState(initialUser.name ?? "");
   const [phone, setPhone] = useState(initialUser.phone ?? "");
   const [whatsappNumber, setWhatsappNumber] = useState(initialUser.whatsappNumber ?? "");
+  const [bio, setBio] = useState(initialUser.bio ?? "");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
@@ -40,6 +42,7 @@ export function EditProfileModal({ isOpen, onClose, initialUser }: EditProfileMo
       setName(initialUser.name ?? "");
       setPhone(initialUser.phone ?? "");
       setWhatsappNumber(initialUser.whatsappNumber ?? "");
+      setBio(initialUser.bio ?? "");
       setStatus(null);
     }
   }, [isOpen, initialUser]);
@@ -59,6 +62,7 @@ export function EditProfileModal({ isOpen, onClose, initialUser }: EditProfileMo
           name: name.trim(),
           phone: phone.trim() || null,
           whatsappNumber: whatsappNumber.trim() || null,
+          bio: bio.trim() || null,
         }),
       });
 
@@ -151,6 +155,21 @@ export function EditProfileModal({ isOpen, onClose, initialUser }: EditProfileMo
                 className="w-full bg-[#181818] border border-white/10 focus:border-primary/50 pl-11 pr-4 py-3 rounded-xl text-sm outline-none transition-colors text-white"
               />
             </div>
+          </div>
+
+          {/* Bio */}
+          <div className="space-y-2">
+            <label htmlFor="modal-bio" className="text-xs font-semibold uppercase tracking-widest text-primary">
+              Bio / Description
+            </label>
+            <textarea
+              id="modal-bio"
+              rows={3}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Tell guests about yourself or your properties..."
+              className="w-full bg-[#181818] border border-white/10 focus:border-primary/50 px-4 py-3 rounded-xl text-sm outline-none transition-colors text-white resize-none"
+            />
           </div>
 
           {/* Phone Number */}
