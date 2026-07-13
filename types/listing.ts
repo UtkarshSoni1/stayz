@@ -57,6 +57,24 @@ export interface MyListingDTO {
   createdAt: string    // ISO date string
 }
 
+/** Shape returned by GET /api/saved for each saved listing card */
+export interface SavedListingDTO {
+  id: string
+  title: string
+  city: string
+  locality: string
+  rent: number         // maps to Listing.monthlyRent
+  roomType: RoomType
+  furnishing: Furnishing
+  genderPreference: GenderPreference
+  isAvailable: boolean
+  status: ListingStatus
+  coverImage: string   // first image url or placeholder
+  rating: number | null
+  reviews: number
+  savedAt: string      // ISO date string — when the user saved it
+}
+
 /** Shape returned by GET /api/dashboard/summary */
 export interface DashboardSummaryDTO {
   total: number
