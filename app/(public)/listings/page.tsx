@@ -3,9 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { RoomType, GenderPreference } from "@prisma/client";
 import SearchBar from "@/components/listings/SearchBar";
-import DashboardButton from "@/components/listings/DashboardButton";
 import ListingCard from "@/components/listings/ListingCard";
 import { AppNavBar } from "@/components/navbar/AppNavBar";
+import { ToastProvider } from "@/components/ui/toast";
+import { getSavedListingIds } from "@/lib/saved-service";
 import {
   ROOM_TYPE_LABELS,
   GENDER_LABELS,
@@ -76,8 +77,16 @@ export default async function ListingsPage({
   searchParams: Promise<SearchParams>;
 }) {
   const [filters, session] = await Promise.all([searchParams, auth()]);
-  const listings = await getListings(filters);
-  const isLoggedIn = !!session?.user;
+  const isLoggedIn = !!session?.user?.id;
+
+  // Fetch listings and saved IDs in parallel — getSavedListingIds is a single
+  // query that returns a Set<string>, so no N+1 per card.
+  const [listings, savedIds] = await Promise.all([
+    getListings(filters),
+    isLoggedIn
+      ? getSavedListingIds(session!.user.id)
+      : Promise.resolve(new Set<string>()),
+  ]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -92,7 +101,7 @@ export default async function ListingsPage({
         </div>
       </div>
 
-      {/* ── Content ────────────────────────────────────────────────────────── */}
+      {/* ── Content ──────────────────────────────────────────────────────── */}
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Results count */}
         <p className="mb-6 text-xs text-muted-foreground">
@@ -101,19 +110,26 @@ export default async function ListingsPage({
             : `${listings.length} space${listings.length !== 1 ? "s" : ""} found`}
         </p>
 
-        {/* Grid */}
-        <section
-          aria-label="Listing results"
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {listings.length === 0 ? (
-            <EmptyState />
-          ) : (
-            listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
-            ))
-          )}
-        </section>
+        {/* ToastProvider needed for heart button toasts */}
+        <ToastProvider>
+          <section
+            aria-label="Listing results"
+            className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {listings.length === 0 ? (
+              <EmptyState />
+            ) : (
+              listings.map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  listing={listing}
+                  initialSaved={savedIds.has(listing.id)}
+                  isLoggedIn={isLoggedIn}
+                />
+              ))
+            )}
+          </section>
+        </ToastProvider>
       </main>
     </div>
   );

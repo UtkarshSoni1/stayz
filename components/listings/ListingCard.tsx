@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Home, MapPin } from "lucide-react";
 import type { Listing, ListingImage } from "@prisma/client";
+import { useSavedListing } from "@/hooks/useSavedListing";
 import {
   ROOM_TYPE_LABELS,
   ROOM_TYPE_COLORS,
@@ -30,15 +30,30 @@ function Badge({ label, colorClass }: { label: string; colorClass: string }) {
 }
 
 // ── ListingCard ───────────────────────────────────────────────────────────────
-export default function ListingCard({ listing }: { listing: ListingWithImage }) {
-  const [wishlisted, setWishlisted] = useState(false);
+interface ListingCardProps {
+  listing: ListingWithImage;
+  /** Whether this listing is already saved by the current user (passed from SSR) */
+  initialSaved?: boolean;
+  /** Whether there is an authenticated user — hides/shows save affordance */
+  isLoggedIn?: boolean;
+}
+
+export default function ListingCard({
+  listing,
+  initialSaved = false,
+  isLoggedIn = false,
+}: ListingCardProps) {
+  const { saved, loading, toggle } = useSavedListing({
+    listingId: listing.id,
+    initialSaved,
+  });
+
   const thumb = listing.images[0];
 
-  function handleWishlist(e: React.MouseEvent<HTMLButtonElement>) {
+  function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     e.stopPropagation();
-    setWishlisted((prev) => !prev);
-    // TODO: POST /api/wishlist
+    toggle();
   }
 
   return (
@@ -73,20 +88,24 @@ export default function ListingCard({ listing }: { listing: ListingWithImage }) 
         )}
 
         {/* Wishlist heart — absolutely positioned top-right */}
-        <button
-          id={`wishlist-btn-${listing.id}`}
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          onClick={handleWishlist}
-          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 transition-colors hover:bg-black/60 active:scale-90"
-        >
-          <Heart
-            className={`h-4 w-4 transition-colors ${
-              wishlisted
-                ? "fill-primary stroke-primary"
-                : "fill-transparent stroke-muted-foreground"
-            }`}
-          />
-        </button>
+        {isLoggedIn && (
+          <button
+            id={`wishlist-btn-${listing.id}`}
+            aria-label={saved ? "Remove from saved" : "Save listing"}
+            aria-pressed={saved}
+            onClick={handleSaveClick}
+            disabled={loading}
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 transition-all hover:bg-black/60 active:scale-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+          >
+            <Heart
+              className={`h-4 w-4 transition-all duration-200 ${
+                saved
+                  ? "fill-rose-500 stroke-rose-500 scale-110"
+                  : "fill-transparent stroke-white/80"
+              }`}
+            />
+          </button>
+        )}
       </div>
 
       {/* Body */}
