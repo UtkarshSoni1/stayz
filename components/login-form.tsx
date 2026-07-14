@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,6 +15,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { ResendButton } from "@/components/auth/resend-button"
 
 /** All role-based routing is handled by /auth/redirect (server component). */
 const AUTH_REDIRECT = "/auth/redirect"
@@ -22,43 +24,56 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const searchParams = useSearchParams()
+  const registeredParam = searchParams.get("registered")
+
+  const [email, setEmail] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  // When login is blocked because email is unverified, store email for resend
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setUnverifiedEmail(null)
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
+    const emailValue = (formData.get("email") as string).trim().toLowerCase()
+    setEmail(emailValue)
 
-    // redirect: true (default) — Auth.js will follow redirectTo on success.
-    // On wrong credentials Auth.js throws a CredentialsSignin error which
-    // propagates as a rejected promise; we catch it to show the inline error.
     const result = await signIn("credentials", {
-      email,
-      password,
+      email: emailValue,
+      password: formData.get("password") as string,
       redirect: false,
     })
 
-    if (result?.error) {
-      setLoading(false)
-      setError("Invalid email or password. Please try again.")
+    setLoading(false)
+
+    if (!result?.error) {
+      // Success — navigate to the redirect hub
+      window.location.href = AUTH_REDIRECT
       return
     }
 
-    // Success — navigate to the redirect hub which reads session and decides
-    // the correct dashboard.
-    window.location.href = AUTH_REDIRECT
+    // Detect unverified email error — Auth.js v5 exposes the code on result
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const code = (result as any).code as string | undefined
+
+    if (code === "email_not_verified") {
+      setUnverifiedEmail(emailValue)
+      return
+    }
+
+    setError("Invalid email or password. Please try again.")
   }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
+          <form className="p-6 md:p-8" onSubmit={handleSubmit} noValidate>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Welcome back to StayZ</h1>
@@ -67,10 +82,39 @@ export function LoginForm({
                 </p>
               </div>
 
+              {/* ── Registered banner (redirected from signup) ─────────── */}
+              {registeredParam && !unverifiedEmail && !error && (
+                <div className="rounded-md border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-center text-sm text-blue-400">
+                  Account created — please verify your email before signing in.
+                </div>
+              )}
+
+              {/* ── Wrong credentials error ────────────────────────────── */}
               {error && (
-                <p className="rounded-md bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
+                <p
+                  role="alert"
+                  className="rounded-md bg-destructive/10 px-3 py-2 text-center text-sm text-destructive"
+                >
                   {error}
                 </p>
+              )}
+
+              {/* ── Email not verified banner ──────────────────────────── */}
+              {unverifiedEmail && (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/8 p-4">
+                  <p className="mb-3 text-center text-sm font-medium text-amber-400">
+                    📧 Please verify your email first
+                  </p>
+                  <p className="mb-4 text-center text-xs text-white/45">
+                    We sent a link to{" "}
+                    <strong className="text-white/70">{unverifiedEmail}</strong>
+                    . Check your inbox (and spam folder).
+                  </p>
+                  <ResendButton
+                    email={unverifiedEmail}
+                    label="Resend Verification Email"
+                  />
+                </div>
               )}
 
               <Field>
@@ -80,6 +124,7 @@ export function LoginForm({
                   name="email"
                   type="email"
                   placeholder="m@example.com"
+                  defaultValue={email}
                   required
                 />
               </Field>
@@ -123,16 +168,9 @@ export function LoginForm({
               </FieldDescription>
             </FieldGroup>
           </form>
-          <div className="relative hidden bg-muted md:block">
-            {/* <img
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            /> */}
-          </div>
+          <div className="relative hidden bg-muted md:block" />
         </CardContent>
       </Card>
     </div>
   )
 }
-
