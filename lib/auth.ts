@@ -1,10 +1,17 @@
-import NextAuth, { type DefaultSession } from "next-auth";
+import NextAuth, { type DefaultSession, CredentialsSignin } from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { validateLogin, normaliseLogin } from "@/lib/validations/auth";
+
+// Custom error returned when a credentials user has not verified their email.
+// Auth.js v5 passes error.code back to the client as result.code.
+class EmailNotVerifiedError extends CredentialsSignin {
+  code = "email_not_verified" as const
+}
 
 // Extend next-auth types to include custom fields
 declare module "next-auth" {
@@ -42,27 +49,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: {},
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        // ── Server-side validation before any DB work ────────────────────────
+        const { valid } = validateLogin(credentials);
+        if (!valid) return null;
+
+        // ── Normalise (trim + lowercase email) ───────────────────────────────
+        const { email, password } = normaliseLogin(
+          credentials as Record<string, unknown>
+        );
 
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email as string,
-          },
+          where: { email },
         });
 
         if (!user || !user.password) {
           return null;
         }
 
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) return null;
 
-        if (!isValid) {
-          return null;
+        // ── Block unverified credentials users ──────────────────────────────
+        // Google OAuth users are always verified by the OAuth adapter.
+        if (!user.emailVerified) {
+          throw new EmailNotVerifiedError();
         }
 
         return {
