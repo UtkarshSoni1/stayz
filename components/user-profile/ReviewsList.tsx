@@ -1,8 +1,13 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/ui/toast";
 import type { UserProfileReview } from "@/data/user-profile";
 
 interface ReviewsListProps {
   reviews: UserProfileReview[];
+  allowDelete?: boolean;
 }
 
 /** ISO date → "Month YYYY" */
@@ -17,8 +22,48 @@ function formatDate(date: Date): string {
  * Shared reviews-written list used in both PrivateProfileView and
  * PublicProfileView. Shows reviews the user has authored across listings.
  */
-export function ReviewsList({ reviews }: ReviewsListProps) {
-  if (reviews.length === 0) {
+export function ReviewsList({ reviews: initialReviews, allowDelete = false }: ReviewsListProps) {
+  const { toast } = useToast();
+  const [localReviews, setLocalReviews] = useState<UserProfileReview[]>(initialReviews);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLocalReviews(initialReviews);
+  }, [initialReviews]);
+
+  const handleDelete = async (e: React.MouseEvent, reviewId: string, listingId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (deletingId) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this review?");
+    if (!confirmDelete) return;
+
+    const previousReviews = localReviews;
+    setLocalReviews((prev) => prev.filter((r) => r.id !== reviewId));
+    setDeletingId(reviewId);
+
+    try {
+      const res = await fetch(`/api/listings/${listingId}/reviews`, {
+        method: "DELETE",
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to delete review.");
+      }
+
+      toast("Review deleted successfully", "success");
+    } catch (err: any) {
+      setLocalReviews(previousReviews);
+      toast(err.message || "Failed to delete review.", "error");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  if (localReviews.length === 0) {
     return (
       <div className="glass-card rounded-2xl p-8 text-center">
         <span className="material-symbols-outlined text-4xl text-white/20 mb-3 block">
@@ -31,11 +76,11 @@ export function ReviewsList({ reviews }: ReviewsListProps) {
 
   return (
     <div className="space-y-4">
-      {reviews.map((review) => (
+      {localReviews.map((review) => (
         <Link
           key={review.id}
           href={`/listings/${review.listing.id}`}
-          className="glass-card rounded-2xl p-5 flex gap-4 hover:border-white/20 transition-all group block"
+          className="glass-card rounded-2xl p-5 flex gap-4 hover:border-white/20 transition-all group block relative"
         >
           {/* Listing thumbnail */}
           {review.listing.image && (
@@ -48,7 +93,7 @@ export function ReviewsList({ reviews }: ReviewsListProps) {
             </div>
           )}
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 pr-8">
             <p className="text-white font-semibold text-sm truncate group-hover:text-teal-400 transition-colors">
               {review.listing.title}
             </p>
@@ -84,8 +129,27 @@ export function ReviewsList({ reviews }: ReviewsListProps) {
               </p>
             )}
           </div>
+
+          {allowDelete && (
+            <button
+              type="button"
+              onClick={(e) => handleDelete(e, review.id, review.listing.id)}
+              disabled={deletingId === review.id}
+              className="absolute top-5 right-5 z-10 p-2 text-white/40 hover:text-red-400 hover:bg-white/5 rounded-full transition-all disabled:opacity-50"
+              title="Delete review"
+            >
+              {deletingId === review.id ? (
+                <span className="material-symbols-outlined text-base animate-spin">
+                  progress_activity
+                </span>
+              ) : (
+                <span className="material-symbols-outlined text-base">delete</span>
+              )}
+            </button>
+          )}
         </Link>
       ))}
     </div>
   );
 }
+

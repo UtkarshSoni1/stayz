@@ -2,7 +2,6 @@ import { AppNavBar } from "@/components/navbar/AppNavBar";
 import { requireUser } from "@/lib/auth-helpers";
 import { getSavedListings } from "@/lib/saved-service";
 import { SavedListingsClient } from "@/components/saved-listings/saved-listings-client";
-import { ToastProvider } from "@/components/ui/toast";
 
 export const metadata = {
   title: "Saved Listings | StayZ",
@@ -24,13 +23,11 @@ export default async function SavedListingsPage() {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <AppNavBar />
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <ToastProvider>
-          <SavedListingsClient
-            initialItems={items}
-            initialTotal={total}
-            initialHasMore={hasMore}
-          />
-        </ToastProvider>
+        <SavedListingsClient
+          initialItems={items}
+          initialTotal={total}
+          initialHasMore={hasMore}
+        />
       </main>
     </div>
   );

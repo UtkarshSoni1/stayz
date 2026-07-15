@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth-helpers"
 import { getListingById, updateListing, deleteListing } from "@/lib/listing-service"
 import { validateUpdateListing } from "@/lib/validations/listing"
@@ -69,6 +70,9 @@ export async function PATCH(
         { status: result.status }
       )
     }
+
+    revalidatePath("/listings")
+    revalidatePath(`/listings/${id}`)
 
     return NextResponse.json<ApiSuccessResponse<unknown>>(
       { success: true, data: result.listing },

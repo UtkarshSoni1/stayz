@@ -160,7 +160,7 @@ export async function updateListing(
   if (existing.ownerId !== ownerId)
     return { ok: false, status: 403, message: "Forbidden." }
 
-  const { amenities, status, ...rest } = payload
+  const { amenities, status, images, ...rest } = payload
 
   // Derive isAvailable from status if provided
   const statusData: { status?: ListingStatus; isAvailable?: boolean } =
@@ -206,6 +206,41 @@ export async function updateListing(
         )
         await tx.listingAmenity.createMany({
           data: amenityRecords.map((a) => ({ listingId: id, amenityId: a.id })),
+        })
+      }
+    }
+
+    if (images !== undefined) {
+      // 1. Find images that are being removed to delete them from Cloudinary
+      const existingImages = await tx.listingImage.findMany({
+        where: { listingId: id },
+        select: { publicId: true },
+      })
+      const newPublicIds = new Set(images.map((img) => img.publicId))
+      const removedPublicIds = existingImages
+        .map((img) => img.publicId)
+        .filter((pid): pid is string => !!pid && !newPublicIds.has(pid))
+
+      if (removedPublicIds.length > 0) {
+        try {
+          await deleteManyFromCloudinary(removedPublicIds)
+        } catch (cErr) {
+          console.error("[updateListing] Failed to delete removed images from Cloudinary:", cErr)
+        }
+      }
+
+      // 2. Delete existing images from DB
+      await tx.listingImage.deleteMany({ where: { listingId: id } })
+
+      // 3. Create new image records
+      if (images.length > 0) {
+        await tx.listingImage.createMany({
+          data: images.map((img) => ({
+            listingId: id,
+            url: img.url,
+            publicId: img.publicId,
+            sortOrder: img.sortOrder,
+          })),
         })
       }
     }

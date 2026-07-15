@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useRef, useState, useEffect } from "react"
 import { ImageIcon, UploadCloud, X, GripVertical, AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -11,7 +11,7 @@ export interface UploadedImage {
   /** Client-side unique key (timestamp + name) */
   key: string
   /** Original File object — kept for display name / retry */
-  file: File
+  file?: File
   /** Object URL for the preview <img> */
   preview: string
   /** 0–100 upload progress */
@@ -38,14 +38,28 @@ interface ImageUploadProps {
   images: UploadedImage[]
   onChange: (images: UploadedImage[]) => void
   errors: Record<string, string>
+  initialImages?: { url: string; publicId: string | null }[]
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
-export function ImageUpload({ images, onChange, errors }: ImageUploadProps) {
+export function ImageUpload({ images, onChange, errors, initialImages }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const dragRef = useRef(false)
   const [isDragging, setIsDragging] = useState(false)
+
+  useEffect(() => {
+    if (initialImages && initialImages.length > 0 && images.length === 0) {
+      const formatted = initialImages.map((img) => ({
+        key: img.publicId || img.url,
+        preview: img.url,
+        progress: 100,
+        url: img.url,
+        publicId: img.publicId || undefined,
+      }))
+      onChange(formatted)
+    }
+  }, [initialImages, onChange]) // runs on mount/initialImages update
 
   // ── Locally-owned mutable ref ────────────────────────────────────────────────
   // We own this ref and update it synchronously every time onChange is called.
@@ -148,7 +162,9 @@ export function ImageUpload({ images, onChange, errors }: ImageUploadProps) {
       stableOnChange([...current, ...newEntries])
 
       // Fire uploads — patchImage reads localRef which now has the new entries
-      newEntries.forEach((entry) => uploadFile(entry.file, entry.key))
+      newEntries.forEach((entry) => {
+        if (entry.file) uploadFile(entry.file, entry.key)
+      })
 
       if (skipped.length > 0) {
         console.warn("[ImageUpload] Skipped files:", skipped.join("; "))
@@ -162,7 +178,7 @@ export function ImageUpload({ images, onChange, errors }: ImageUploadProps) {
   const removeImage = useCallback(
     (key: string) => {
       const target = localRef.current.find((img) => img.key === key)
-      if (target?.preview) URL.revokeObjectURL(target.preview)
+      if (target?.preview && target.preview.startsWith("blob:")) URL.revokeObjectURL(target.preview)
       stableOnChange(localRef.current.filter((img) => img.key !== key))
     },
     [stableOnChange]
@@ -173,7 +189,7 @@ export function ImageUpload({ images, onChange, errors }: ImageUploadProps) {
   const retryImage = useCallback(
     (key: string) => {
       const target = localRef.current.find((img) => img.key === key)
-      if (!target) return
+      if (!target || !target.file) return
       patchImage(key, { progress: 0, error: undefined })
       uploadFile(target.file, key)
     },

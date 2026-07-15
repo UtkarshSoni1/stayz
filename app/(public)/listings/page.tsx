@@ -5,7 +5,6 @@ import { RoomType, GenderPreference } from "@prisma/client";
 import SearchBar from "@/components/listings/SearchBar";
 import ListingCard from "@/components/listings/ListingCard";
 import { AppNavBar } from "@/components/navbar/AppNavBar";
-import { ToastProvider } from "@/components/ui/toast";
 import { getSavedListingIds } from "@/lib/saved-service";
 import {
   ROOM_TYPE_LABELS,
@@ -110,8 +109,6 @@ export default async function ListingsPage({
             : `${listings.length} space${listings.length !== 1 ? "s" : ""} found`}
         </p>
 
-        {/* ToastProvider needed for heart button toasts */}
-        <ToastProvider>
           <section
             aria-label="Listing results"
             className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
@@ -129,7 +126,6 @@ export default async function ListingsPage({
               ))
             )}
           </section>
-        </ToastProvider>
       </main>
     </div>
   );

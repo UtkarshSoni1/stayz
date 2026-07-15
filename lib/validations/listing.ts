@@ -167,6 +167,24 @@ export function validateUpdateListing(body: unknown): ValidationResult {
     }
   }
 
+  if (data.city !== undefined) {
+    if (typeof data.city !== "string" || !data.city.trim()) {
+      errors.city = "City is required"
+    }
+  }
+
+  if (data.locality !== undefined) {
+    if (typeof data.locality !== "string" || !data.locality.trim()) {
+      errors.locality = "Locality is required"
+    }
+  }
+
+  if (data.address !== undefined) {
+    if (data.address !== null && typeof data.address !== "string") {
+      errors.address = "Address must be a string"
+    }
+  }
+
   if (data.monthlyRent !== undefined) {
     const rent = Number(data.monthlyRent)
     if (isNaN(rent) || rent <= 0) errors.monthlyRent = "Monthly rent must be a positive number"
@@ -203,6 +221,24 @@ export function validateUpdateListing(body: unknown): ValidationResult {
       )
       if (invalid.length > 0) {
         errors.amenities = `Unknown amenities: ${invalid.join(", ")}`
+      }
+    }
+  }
+
+  if (data.images !== undefined) {
+    if (!Array.isArray(data.images)) {
+      errors.images = "Images must be an array"
+    } else {
+      const invalid = (data.images as unknown[]).filter(
+        (img) =>
+          !img ||
+          typeof img !== "object" ||
+          typeof (img as any).url !== "string" ||
+          typeof (img as any).publicId !== "string" ||
+          typeof (img as any).sortOrder !== "number"
+      )
+      if (invalid.length > 0) {
+        errors.images = "Invalid image objects in array"
       }
     }
   }

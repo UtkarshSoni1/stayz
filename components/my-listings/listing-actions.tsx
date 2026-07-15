@@ -82,7 +82,7 @@ export function ListingActions({
               variant="ghost"
               size="icon-sm"
               className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-white/5"
-              onClick={() => router.push(`/add-listing?edit=${listing.id}`)}
+              onClick={() => router.push(`/owner/edit-listing/${listing.id}`)}
               aria-label="Edit listing"
             >
               <Pencil className="h-4 w-4" />

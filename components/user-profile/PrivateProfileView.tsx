@@ -239,7 +239,7 @@ export function PrivateProfileView({ profile }: PrivateProfileViewProps) {
         <h2 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-4">
           Reviews you&apos;ve written
         </h2>
-        <ReviewsList reviews={profile.reviews} />
+        <ReviewsList reviews={profile.reviews} allowDelete />
       </section>
 
       {/* ── Saved Listings ────────────────────────────────────────────── */}

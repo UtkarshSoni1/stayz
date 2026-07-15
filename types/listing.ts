@@ -31,6 +31,7 @@ export interface CreateListingPayload {
 
 export type UpdateListingPayload = Partial<Omit<CreateListingPayload, "amenities">> & {
   amenities?: string[]
+  images?: { url: string; publicId: string; sortOrder: number }[]
 }
 
 export interface UpdateStatusPayload {

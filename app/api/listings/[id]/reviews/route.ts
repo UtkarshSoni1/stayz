@@ -146,3 +146,96 @@ export async function POST(
     )
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { user, error } = await requireAuth()
+    if (error) return error
+
+    const { id: listingId } = await params
+
+    // Look up the review
+    const review = await prisma.review.findUnique({
+      where: {
+        listingId_userId: {
+          listingId,
+          userId: user.id,
+        },
+      },
+    })
+
+    if (!review) {
+      return NextResponse.json<ApiErrorResponse>(
+        { success: false, error: "Review not found." },
+        { status: 404 }
+      )
+    }
+
+    // Execute in a transaction
+    await prisma.$transaction(async (tx) => {
+      // Delete the review
+      await tx.review.delete({
+        where: {
+          listingId_userId: {
+            listingId,
+            userId: user.id,
+          },
+        },
+      })
+
+      // Aggregate and update the listing
+      const aggregate = await tx.review.aggregate({
+        where: { listingId },
+        _avg: {
+          rating: true,
+          cleanliness: true,
+          accuracy: true,
+          checkIn: true,
+          communication: true,
+          location: true,
+          value: true,
+        },
+        _count: {
+          _all: true,
+        },
+      })
+
+      await tx.listing.update({
+        where: { id: listingId },
+        data: {
+          reviewCount: aggregate._count._all || 0,
+          avgRating: aggregate._avg.rating || 0,
+          avgCleanliness: aggregate._avg.cleanliness || 0,
+          avgAccuracy: aggregate._avg.accuracy || 0,
+          avgCheckIn: aggregate._avg.checkIn || 0,
+          avgCommunication: aggregate._avg.communication || 0,
+          avgLocation: aggregate._avg.location || 0,
+          avgValue: aggregate._avg.value || 0,
+        },
+      })
+    })
+
+    // Bust cache for the listing page
+    try {
+      revalidatePath(`/listings/${listingId}`)
+      revalidatePath("/listings")
+    } catch (e) {
+      console.warn("[revalidatePath failed]", e)
+    }
+
+    return NextResponse.json<ApiSuccessResponse<null>>(
+      { success: true, data: null },
+      { status: 200 }
+    )
+  } catch (err) {
+    console.error("[DELETE /api/listings/[id]/reviews]", err)
+    return NextResponse.json<ApiErrorResponse>(
+      { success: false, error: "Failed to delete review." },
+      { status: 500 }
+    )
+  }
+}
+
