@@ -381,21 +381,21 @@ export default async function UserDashboardPage() {
           <Card>
             <SectionHeader title="Quick Actions" icon={TrendingUp} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <QuickAction
-                icon={Search}
-                label="Browse Listings"
-                desc="Find your perfect rental space"
-                href="/listings"
-                accent="bg-violet-500/10 text-violet-400"
-              />
-              <QuickAction
-                icon={Heart}
-                label="Saved Listings"
-                desc="View your bookmarked spaces"
-                href="/user/saved"
-                accent="bg-rose-500/10 text-rose-400"
-              />
-            </div>
+  <QuickAction
+    icon={Search}
+    label="Browse Listings"
+    desc="Find your perfect rental space"
+    href="/listings"
+    accent="bg-violet-500/10 text-violet-400"
+  />
+  <QuickAction
+    icon={Heart}
+    label="Saved Listings"
+    desc="View your bookmarked spaces"
+    href="/user/saved"
+    accent="bg-rose-500/10 text-rose-400"
+  />
+</div>
           </Card>
         </div>
 
