@@ -40,7 +40,7 @@ export default function DevelopersPage() {
       description: "Bridges front-end implementation with high-contrast UI/UX design, custom animations, and interactive design systems.",
       tech: ["Next.js", "Figma", "Tailwind CSS", "Framer Motion", "Socket.io", "MongoDB"],
       contributions: [
-        "Login / Sign-Up",
+        "Sign in / Sign up",
         "Listing Details Page v1",
         "User & Owner Dashboard",
         "Admin Panel",

@@ -395,13 +395,6 @@ export default async function UserDashboardPage() {
                 href="/user/saved"
                 accent="bg-rose-500/10 text-rose-400"
               />
-              <QuickAction
-                icon={UserIcon}
-                label="View Profile"
-                desc="See your public profile page"
-                href={`/users/${user.id}`}
-                accent="bg-teal-500/10 text-teal-400"
-              />
             </div>
           </Card>
         </div>

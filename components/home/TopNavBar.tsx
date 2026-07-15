@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Home } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 
 export const TopNavBar: React.FC = () => {
@@ -49,66 +49,57 @@ export const TopNavBar: React.FC = () => {
         >
           {scrolled ? "Browse" : "Listings"}
         </Link>
-        <Link
-          href="#hosts"
-          className={`text-sm font-semibold hover:opacity-60 transition-opacity whitespace-nowrap ${textColor}`}
-        >
-          For Hosts
-        </Link>
-        {scrolled && (
-          <Link
-            href="#how-it-works"
-            className="text-black text-sm font-semibold hover:opacity-60 transition-opacity whitespace-nowrap"
-          >
-            How it Works
-          </Link>
-        )}
-        <Link
-          href="#about"
-          className={`text-sm font-semibold hover:opacity-60 transition-opacity whitespace-nowrap ${textColor}`}
-        >
-          About
-        </Link>
-
-        {/* Divider before auth */}
-        <div className={`w-px h-4 shrink-0 ${dividerColor}`} />
 
         {/* Auth */}
         {session?.user ? (
-          <Link
-            href="/dashboard"
-            className={`flex items-center gap-2 text-sm font-semibold hover:opacity-60 transition-opacity ${textColor}`}
-          >
-            {session.user.image ? (
-              <img
-                src={session.user.image}
-                alt={session.user.name ?? "Profile"}
-                className={`rounded-full object-cover transition-all duration-500 ${scrolled ? "w-6 h-6" : "w-7 h-7"}`}
-              />
-            ) : (
-              <div
-                className={`rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500
-                  ${scrolled
-                    ? "w-6 h-6 bg-black/10 text-black"
-                    : "w-7 h-7 bg-white/20 text-white"
-                  }`}
-              >
-                {(session.user.name ?? "U")[0].toUpperCase()}
-              </div>
-            )}
-            {!scrolled && (
-              <span className="text-white font-semibold text-sm">
-                {session.user.name?.split(" ")[0]}
-              </span>
-            )}
-          </Link>
+          <>
+            <Link
+              href="/dashboard"
+              className={`flex items-center gap-2 text-sm font-semibold hover:opacity-60 transition-opacity ${textColor}`}
+            >
+              {session.user.image ? (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name ?? "Profile"}
+                  className={`rounded-full object-cover transition-all duration-500 ${scrolled ? "w-6 h-6" : "w-7 h-7"}`}
+                />
+              ) : (
+                <div
+                  className={`rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500
+                    ${scrolled
+                      ? "w-6 h-6 bg-black/10 text-black"
+                      : "w-7 h-7 bg-white/20 text-white"
+                    }`}
+                >
+                  {(session.user.name ?? "U")[0].toUpperCase()}
+                </div>
+              )}
+              {!scrolled && (
+                <span className={`font-semibold text-sm ${textColor}`}>
+                  {session.user.name?.split(" ")[0]}
+                </span>
+              )}
+            </Link>
+            
+            <div className={`w-px h-4 shrink-0 ${dividerColor}`} />
+            
+            <button
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className={`text-sm font-semibold hover:opacity-60 transition-opacity whitespace-nowrap ${textColor}`}
+            >
+              Sign out
+            </button>
+          </>
         ) : (
-          <Link
-            href="/login"
-            className={`text-sm font-semibold hover:opacity-60 transition-opacity whitespace-nowrap ${textColor}`}
-          >
-            Sign In
-          </Link>
+          <>
+            <div className={`w-px h-4 shrink-0 ${dividerColor}`} />
+            <Link
+              href="/login"
+              className={`text-sm font-semibold hover:opacity-60 transition-opacity whitespace-nowrap ${textColor}`}
+            >
+              Sign in
+            </Link>
+          </>
         )}
       </div>
     </nav>

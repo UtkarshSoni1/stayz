@@ -29,7 +29,7 @@ const CONFIGS = {
         href="/login"
         className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-white px-6 text-sm font-semibold text-black transition hover:bg-white/90"
       >
-        Sign In
+        Sign in
       </Link>
     ),
     showResend: false,
@@ -143,7 +143,7 @@ function VerifyEmailContent() {
                 href="/login"
                 className="text-xs text-white/30 hover:text-white/60 transition"
               >
-                Back to Sign In
+                Back to Sign in
               </Link>
             </div>
           )}

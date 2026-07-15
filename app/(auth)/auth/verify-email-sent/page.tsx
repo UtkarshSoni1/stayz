@@ -61,7 +61,7 @@ export default async function VerifyEmailSentPage({ searchParams }: Props) {
               href="/login"
               className="text-xs text-white/30 hover:text-white/60 transition"
             >
-              Back to Sign In
+              Back to Sign in
             </Link>
           </div>
         </div>
