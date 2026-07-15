@@ -393,20 +393,6 @@ export default async function UserDashboardPage() {
                 href="/user/saved"
                 accent="bg-rose-500/10 text-rose-400"
               />
-              <QuickAction
-                icon={CreditCard}
-                label="Pay Rent"
-                desc="Make your rent payment"
-                href="/user/payments"
-                accent="bg-emerald-500/10 text-emerald-400"
-              />
-              <QuickAction
-                icon={Download}
-                label="Download Agreement"
-                desc="Get your rental agreement PDF"
-                href="/user/agreement"
-                accent="bg-blue-500/10 text-blue-400"
-              />
             </div>
           </Card>
         </div>

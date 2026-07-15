@@ -142,7 +142,7 @@ export function LoginForm({
               </Field>
               <Field>
                 <Button type="submit" disabled={loading}>
-                  {loading ? "Signing in…" : "Login"}
+                  {loading ? "Signing in…" : "Sign in"}
                 </Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">

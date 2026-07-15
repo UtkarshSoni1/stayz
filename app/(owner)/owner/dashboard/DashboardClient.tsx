@@ -181,7 +181,6 @@ export function DashboardClient({ summary, user }: DashboardClientProps) {
                     title: "Complete your profile",
                     desc: "Add your contact numbers and edit your name.",
                     done: !!user.phone || !!user.whatsappNumber,
-                    clickable: true,
                     onClick: () => setIsProfileModalOpen(true),
                   },
                   {
@@ -189,31 +188,20 @@ export function DashboardClient({ summary, user }: DashboardClientProps) {
                     title: "List your first property",
                     desc: "Add photos, amenities, and set your pricing.",
                     done: summary.total > 0,
-                    clickable: false,
+                    href: "/owner/add-listing",
                   },
                   {
                     step: "3",
                     title: "Get your first booking",
                     desc: "Share your listing and start welcoming guests.",
                     done: summary.rented > 0,
-                    clickable: false,
+                    href: "/owner/my-listings",
                   },
                 ].map((item) => {
-                  const Container = item.clickable ? "button" : "div";
-                  const buttonProps = item.clickable
-                    ? { onClick: item.onClick, className: "w-full text-left cursor-pointer" }
-                    : {};
+                  const isClickable = !!item.onClick || !!item.href;
 
-                  return (
-                    <Container
-                      key={item.step}
-                      {...buttonProps}
-                      className={`w-full flex items-start gap-4 p-4 rounded-lg border transition-colors text-left ${
-                        item.clickable ? "hover:bg-accent/40" : ""
-                      } ${
-                        item.done ? "bg-green-500/5 border-green-500/20" : "bg-muted/30"
-                      }`}
-                    >
+                  const content = (
+                    <>
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                           item.done
@@ -229,6 +217,29 @@ export function DashboardClient({ summary, user }: DashboardClientProps) {
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
                       </div>
+                    </>
+                  );
+
+                  const className = `w-full flex items-start gap-4 p-4 rounded-lg border transition-colors text-left ${
+                    isClickable ? "hover:bg-accent/40 cursor-pointer" : ""
+                  } ${
+                    item.done ? "bg-green-500/5 border-green-500/20" : "bg-muted/30"
+                  }`;
+
+                  if (item.href) {
+                    return (
+                      <Link key={item.step} href={item.href} className={className}>
+                        {content}
+                      </Link>
+                    );
+                  }
+
+                  const Container = item.onClick ? "button" : "div";
+                  const buttonProps = item.onClick ? { onClick: item.onClick } : {};
+
+                  return (
+                    <Container key={item.step} {...buttonProps} className={className}>
+                      {content}
                     </Container>
                   );
                 })}

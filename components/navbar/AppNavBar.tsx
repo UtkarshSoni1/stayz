@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Home } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -81,31 +81,42 @@ export const AppNavBar: React.FC = () => {
         {/* Right: Session Auth / Avatar */}
         <div className="flex items-center gap-4">
           {session?.user ? (
-            <Link
-              href={dashboardHref}
-              className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
-            >
-              {session.user.image ? (
-                <img
-                  src={session.user.image}
-                  alt={session.user.name ?? "Profile"}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-border"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                  {initials}
-                </div>
-              )}
-              <span className="hidden sm:block text-sm font-medium">
-                {session.user.name?.split(" ")[0] ?? "User"}
-              </span>
-            </Link>
+            <>
+              <Link
+                href={dashboardHref}
+                className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+              >
+                {session.user.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name ?? "Profile"}
+                    className="w-8 h-8 rounded-full object-cover ring-2 ring-border"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                    {initials}
+                  </div>
+                )}
+                <span className="hidden sm:block text-sm font-medium">
+                  {session.user.name ?? "User"}
+                </span>
+              </Link>
+              
+              <div className="w-px h-4 bg-border shrink-0" />
+              
+              <button
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="text-sm font-semibold text-foreground hover:text-primary transition-colors whitespace-nowrap"
+              >
+                Sign out
+              </button>
+            </>
           ) : (
             <Link
               href="/login"
               className="text-sm font-semibold text-foreground hover:text-primary transition-colors"
             >
-              Sign In
+              Sign in
             </Link>
           )}
         </div>
