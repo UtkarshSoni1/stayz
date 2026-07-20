@@ -1,5 +1,7 @@
 # StayZ API Documentation
 
+> **Last synced:** Admin dashboard + analytics system (2026-07-20)
+
 StayZ uses Next.js 16 App Router route handlers under `app/api`. All handlers return `NextResponse` with a consistent envelope:
 
 ```ts
@@ -156,6 +158,8 @@ Deletes listing and associated Cloudinary images. Requires authentication + owne
 Toggle listing status. Owner-only.
 
 **Request body:** `{ "status": "RENTED" | "ACTIVE" }`
+
+> `SUSPENDED` status is reserved for admin use via `PATCH /api/admin/listings/[id]`.
 
 **Success `200`:** `{ "success": true, "data": null }`
 
@@ -383,6 +387,180 @@ Authenticated. Returns listings owned by the current user.
 
 ---
 
+## Admin Routes
+
+All admin routes require the `ADMIN` role. Authorization is enforced via `requireAdminApi()` from `lib/auth-helpers.ts`.
+
+### `GET /api/admin/listings`
+
+Paginated listing index with admin-level filters.
+
+**Query parameters:**
+
+| Param | Type | Notes |
+|---|---|---|
+| `search` | string | Searches title, city, owner name, owner email |
+| `status` | `ACTIVE\|DRAFT\|RENTED\|SUSPENDED\|ALL` | Filter by listing status |
+| `propertyType` | string | Exact match on `propertyType` field |
+| `city` | string | Case-insensitive contains match |
+| `page` | number | Default: 1 |
+| `limit` | number | Default: 20, max: 100 |
+
+**Success `200`:**
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "...", "title": "...", "city": "...", "locality": "...",
+        "monthlyRent": 12000, "status": "ACTIVE", "propertyType": "...",
+        "createdAt": "...", "reviewCount": 3, "avgRating": 4.5,
+        "images": [{ "url": "..." }],
+        "owner": { "id": "...", "name": "...", "email": "..." },
+        "_count": { "bookingRequests": 2 }
+      }
+    ],
+    "total": 42,
+    "page": 1,
+    "limit": 20
+  }
+}
+```
+
+---
+
+### `GET /api/admin/listings/stats`
+
+Returns listing counts grouped by status.
+
+**Success `200`:**
+```json
+{
+  "success": true,
+  "data": { "total": 100, "active": 60, "draft": 20, "rented": 15, "suspended": 5 }
+}
+```
+
+---
+
+### `GET /api/admin/listings/[id]`
+
+Returns full listing detail plus booking request counts grouped by status (PENDING / ACCEPTED / REJECTED).
+
+**Success `200`:** Full listing object with `bookingRequestsByStatus: { PENDING, ACCEPTED, REJECTED }`. **`404`** if not found.
+
+---
+
+### `PATCH /api/admin/listings/[id]`
+
+Admin-only status override. Supports `SUSPENDED` status that owner routes cannot set.
+
+**Request body:** `{ "status": "ACTIVE" | "DRAFT" | "RENTED" | "SUSPENDED" }`
+
+Setting `ACTIVE` also sets `isAvailable = true`; any other status sets `isAvailable = false`.
+
+**Success `200`:** `{ "success": true, "data": { "id": "...", "status": "SUSPENDED", "isAvailable": false, "updatedAt": "..." } }`
+
+**Errors:** `400` invalid JSON · `404` not found · `422` invalid status
+
+---
+
+### `DELETE /api/admin/listings/[id]`
+
+Admin-only hard delete. Reuses `deleteListing` from `lib/listing-service.ts` with `role = "ADMIN"` to bypass owner check.
+
+**Success `200`:** `{ "success": true, "data": null }`
+
+---
+
+### `PATCH /api/admin/listings/bulk`
+
+Apply a bulk action to multiple listings at once.
+
+**Request body:**
+```json
+{ "ids": ["id1", "id2"], "action": "SUSPEND" }
+```
+
+| Action | Effect |
+|---|---|
+| `SUSPEND` | Sets `status = SUSPENDED`, `isAvailable = false` |
+| `ACTIVATE` | Sets `status = ACTIVE`, `isAvailable = true` |
+| `DELETE` | Hard-deletes each listing (with Cloudinary cleanup) inside a `$transaction` |
+
+**Success `200`:** `{ "success": true, "data": { "affected": 2 } }`
+
+**Errors:** `422` empty ids or invalid action
+
+---
+
+### `GET /api/admin/analytics`
+
+Returns aggregated business intelligence data for the admin analytics dashboard.
+
+**Query parameters:**
+
+| Param | Values | Default |
+|---|---|---|
+| `range` | `7d \| 30d \| 90d \| 1y` | `30d` |
+
+**Success `200`:**
+```json
+{
+  "success": true,
+  "data": {
+    "kpis": {
+      "estimatedRevenue": 480000,
+      "totalBookings": 42,
+      "activeListings": 61,
+      "activeUsers": 18
+    },
+    "revenueByDay": [{ "date": "2026-07-01", "revenue": 24000 }],
+    "bookingsByDay": [{ "date": "2026-07-01", "count": 3 }],
+    "bookingsByStatus": [
+      { "status": "Pending", "count": 10 },
+      { "status": "Confirmed", "count": 28 },
+      { "status": "Cancelled", "count": 4 }
+    ],
+    "revenueByCity": [{ "city": "Bangalore", "revenue": 180000 }],
+    "topListings": [
+      {
+        "id": "...", "title": "...", "city": "...",
+        "monthlyRent": 12000, "reviewCount": 5,
+        "avgRating": 4.8, "confirmedBookings": 3
+      }
+    ],
+    "recentBookings": [
+      {
+        "id": "...", "listingTitle": "...", "userName": "Raj",
+        "status": "Confirmed", "createdAt": "..."
+      }
+    ]
+  }
+}
+```
+
+**KPI definitions:**
+- `estimatedRevenue` — Sum of `monthlyRent` for all ACCEPTED bookings in range
+- `totalBookings` — Count of all booking requests in range
+- `activeListings` — Current total with `status = ACTIVE` (not range-scoped)
+- `activeUsers` — Distinct users with ≥1 booking or saved listing in range
+
+**Errors:** `401` unauthenticated · `403` non-admin · `500` server error
+
+---
+
+## Cron Routes
+
+### `GET /api/cron/cleanup-tokens`
+
+Deletes expired `VerificationToken` rows from the database. Intended to be called by a scheduled job (e.g. Vercel Cron). Protected by a `CRON_SECRET` header check.
+
+**Success `200`:** `{ "success": true, "data": { "deleted": 12 } }`
+
+---
+
 ## Environment Variables
 
 | Variable | Used By |
@@ -397,5 +575,13 @@ Authenticated. Returns listings owned by the current user.
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary SDK |
 | `CLOUDINARY_API_KEY` | Cloudinary SDK |
 | `CLOUDINARY_API_SECRET` | Cloudinary SDK |
+| `EMAIL_HOST` | Nodemailer SMTP host |
+| `EMAIL_PORT` | Nodemailer SMTP port (default `587`) |
+| `EMAIL_USER` | SMTP username |
+| `EMAIL_PASS` | SMTP password |
+| `EMAIL_FROM` | Sender address (default `StayZ <noreply@stayz.in>`) |
+| `CRON_SECRET` | Cron route authorization token |
 
-Do not expose `CLOUDINARY_API_SECRET` or `AUTH_SECRET` to client components.
+Do not expose `CLOUDINARY_API_SECRET`, `AUTH_SECRET`, `EMAIL_PASS`, or `CRON_SECRET` to client components.
+
+> **Email dev fallback:** When `EMAIL_HOST` / `EMAIL_USER` / `EMAIL_PASS` are not set, `lib/email.ts` logs verification links to the console instead of sending real emails.

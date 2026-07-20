@@ -277,12 +277,14 @@ Index: `[listingId, userId, status]`
 
 ```prisma
 enum Role            { USER | OWNER | ADMIN }
-enum ListingStatus   { ACTIVE | DRAFT | RENTED }
+enum ListingStatus   { ACTIVE | DRAFT | RENTED | SUSPENDED }
 enum RoomType        { SINGLE | SHARED | PG | FLAT }
 enum GenderPreference { MALE | FEMALE | ANY }
 enum Furnishing      { FURNISHED | SEMI_FURNISHED | UNFURNISHED }
 enum RequestStatus   { PENDING | ACCEPTED | REJECTED }
 ```
+
+> **Note:** `SUSPENDED` is an admin-only status applied via `PATCH /api/admin/listings/[id]`. Suspended listings have `isAvailable = false` and do not appear in public browse results.
 
 ---
 

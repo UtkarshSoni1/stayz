@@ -34,11 +34,11 @@ Core needs:
 
 ### Admins
 
-Moderate listings, handle reports, and manage spam. *(Planned — not yet implemented.)*
+Moderate listings, handle reports, and manage spam.
 
 ---
 
-## ✅ Shipped (as of commit 6bc6867)
+## ✅ Shipped (as of 2026-07-20)
 
 ### Authentication
 - Email/password signup and login
@@ -89,13 +89,31 @@ Moderate listings, handle reports, and manage spam. *(Planned — not yet implem
 - `GET /api/user` — read own profile (name, email, image, role, phone, whatsappNumber)
 - `PATCH /api/user` — update name, image, phone, whatsappNumber
 
+### Owner Listing Edit
+- Reusable `ListingForm` component handles both create and edit
+- Edit pre-populates all fields including existing Cloudinary images
+- `PATCH /api/listings/[id]` validates partial updates and handles image sync
+
+### Admin Moderation
+- Dedicated admin route group `(admin)` with ADMIN-role enforcement via `requireAdminApi()`
+- `/admin/dashboard` — summary KPI cards
+- `/admin/listings` — full paginated listing table with search, status filter, bulk SUSPEND / ACTIVATE / DELETE
+- `/admin/analytics` — interactive analytics dashboard with date-range selector (7d / 30d / 90d / 1y), charts, and data tables
+- `SUSPENDED` listing status — admin-only; hides listing from public browse without hard delete
+
+### Email Infrastructure
+- `lib/email.ts` — Nodemailer transport with SMTP env config and dev console fallback
+- `sendVerificationEmail(to, rawToken)` — branded dark-theme HTML email template
+- `GET /api/cron/cleanup-tokens` — scheduled expired token cleanup
+
 ---
 
 ## 🚧 In Progress
 
 - User profile page UI (`/user/dashboard`)
-- Saved listings UI + `GET /api/listings/my/saved` (schema is ready: `SavedListing` model exists)
+- Saved listings UI + `GET /api/saved` (schema is ready: `SavedListing` model exists)
 - User agreement and payment pages (route shells exist, no implementation)
+- Email verification flow (infra ready in `lib/email.ts`; `/auth/verify` route not yet wired up)
 
 ---
 
@@ -108,7 +126,6 @@ Moderate listings, handle reports, and manage spam. *(Planned — not yet implem
 ### Phase 2: Engagement
 - Saved/bookmarked listings (full UI + API)
 - Report listing flow
-- Admin moderation panel
 - Email alerts for saved searches
 
 ### Phase 3: Growth

@@ -28,10 +28,11 @@ The product is unapologetically **Gen Z-first**:
 | **Framework** | Next.js 16.2.9 (App Router) |
 | **Language** | TypeScript 5 |
 | **Styling** | Tailwind CSS 4 + shadcn/radix-ui primitives |
-| **Database** | PostgreSQL (hosted on Supabase) |
+| **Database** | PostgreSQL (Neon hosted) |
 | **ORM** | Prisma 6 |
 | **Auth** | Auth.js / NextAuth v5 (beta) — credentials + Google OAuth |
 | **Image Storage** | Cloudinary |
+| **Email** | Nodemailer (SMTP with dev console fallback) |
 | **Animations** | Framer Motion |
 | **Icons** | Lucide React, React Icons |
 | **Deployment** | Vercel |
@@ -119,13 +120,31 @@ The product is unapologetically **Gen Z-first**:
 | Saved listings page (UI + API) | 🚧 |
 | User dashboard | 🚧 |
 
-#### 📊 Admin
+#### 📊 Admin & Analytics
 
 | Feature | Status |
 |---|---|
-| Admin route group `app/(admin)` | 📋 |
-| Admin dashboard / moderation UI | 📋 |
+| Admin route group `app/(admin)` with ADMIN-role enforcement | ✅ |
+| Admin dashboard (`/admin/dashboard`) — KPI summary cards | ✅ |
+| Admin listings table (`/admin/listings`) — search, filter, bulk actions | ✅ |
+| Admin analytics (`/admin/analytics`) — time-series, donut, bar charts | ✅ |
+| `GET /api/admin/analytics` — KPIs, revenue, bookings, top listings | ✅ |
+| `GET /api/admin/listings` — paginated listing index | ✅ |
+| `GET /api/admin/listings/stats` — status-grouped counts | ✅ |
+| `GET/PATCH/DELETE /api/admin/listings/[id]` — full admin control | ✅ |
+| `PATCH /api/admin/listings/bulk` — bulk SUSPEND / ACTIVATE / DELETE | ✅ |
+| `SUSPENDED` listing status (admin-only, hides from public browse) | ✅ |
 | Report listings | 📋 |
+
+#### 📧 Email & Infrastructure
+
+| Feature | Status |
+|---|---|
+| `lib/email.ts` — Nodemailer transport with dev console fallback | ✅ |
+| Branded email verification template (dark-themed HTML) | ✅ |
+| `GET /api/cron/cleanup-tokens` — expired token purge | ✅ |
+| Email verification flow (`/auth/verify` route) | 🚧 |
+| `SessionProvider` SSR-safe dynamic import fix | ✅ |
 
 ---
 
@@ -142,7 +161,7 @@ stayz/
 │   │   └── owner/
 │   │       ├── dashboard/        # /owner/dashboard
 │   │       ├── my-listings/      # /owner/my-listings
-│   │       ├── add-listing/      # /owner/add-listing
+│   │       ├── add-listing/      # /owner/add-listing (create + edit)
 │   │       └── booking-requests/ # /owner/booking-requests
 │   ├── (user)/
 │   │   └── user/
@@ -151,7 +170,10 @@ stayz/
 │   │       ├── payments/    # /user/payments (WIP)
 │   │       └── agreement/   # /user/agreement (WIP)
 │   ├── (admin)/
-│   │   └── admin/dashboard/ # /admin/dashboard (planned)
+│   │   └── admin/
+│   │       ├── dashboard/   # /admin/dashboard
+│   │       ├── listings/    # /admin/listings
+│   │       └── analytics/   # /admin/analytics
 │   └── api/
 │       ├── auth/            # NextAuth handler + /register
 │       ├── listings/        # CRUD + /[id]/reviews, booking-requests,
@@ -159,15 +181,23 @@ stayz/
 │       │                    #   images, duplicate
 │       ├── booking-requests/[requestId]/ # PATCH (accept/reject)
 │       ├── upload/          # Cloudinary upload handler
-│       └── user/            # GET/PATCH profile + /booking-requests
+│       ├── user/            # GET/PATCH profile + /booking-requests
+│       ├── admin/
+│       │   ├── listings/    # GET (browse) + stats + bulk
+│       │   ├── listings/[id]/ # GET, PATCH, DELETE
+│       │   └── analytics/   # GET (BI dashboard data)
+│       └── cron/
+│           └── cleanup-tokens/ # GET (expired token purge)
 ├── components/              # Reusable UI components
 │   ├── listing-details/     # Detail-page section components
 │   ├── home/                # Homepage-specific components
 │   ├── navbar/              # AppNavBar
+│   ├── session-provider.tsx # SSR-safe dynamic SessionProvider
 │   └── ui/                  # shadcn-style primitives
 ├── lib/
 │   ├── auth.ts              # Auth.js configuration
-│   ├── auth-helpers.ts      # requireAuth() helper
+│   ├── auth-helpers.ts      # requireAuth() + requireAdminApi()
+│   ├── email.ts             # Nodemailer transport + email templates
 │   ├── prisma.ts            # Prisma client singleton
 │   ├── listing-service.ts   # getListingById, updateListing, deleteListing,
 │   │                        #   markListingRented, markListingAvailable
@@ -211,6 +241,14 @@ cp .env.example .env
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
 | `CLOUDINARY_API_KEY` | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `EMAIL_HOST` | SMTP host (e.g. `smtp.gmail.com`) |
+| `EMAIL_PORT` | SMTP port (default `587`) |
+| `EMAIL_USER` | SMTP username |
+| `EMAIL_PASS` | SMTP password |
+| `EMAIL_FROM` | Sender address (default `StayZ <noreply@stayz.in>`) |
+| `CRON_SECRET` | Authorization token for cron endpoints |
+
+> **Email dev mode:** If `EMAIL_HOST` / `EMAIL_USER` / `EMAIL_PASS` are not set, email links are printed to the console — no real SMTP needed for local development.
 
 
 ```bash

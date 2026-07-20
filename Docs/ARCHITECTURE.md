@@ -1,6 +1,8 @@
 # StayZ Architecture
 
-StayZ is a Next.js 16 App Router application for room discovery and owner listing management. The codebase has full authentication, route protection, listing CRUD, Cloudinary image uploads, a booking request system, reviews with per-category ratings, and contact-owner analytics.
+> **Last synced:** Admin dashboard + analytics system (2026-07-20)
+
+StayZ is a Next.js 16 App Router application for room discovery and owner listing management. The codebase has full authentication, route protection, listing CRUD, Cloudinary image uploads, a booking request system, reviews with per-category ratings, contact-owner analytics, and a full admin moderation + analytics panel.
 
 ---
 
@@ -46,7 +48,9 @@ app/
     user/payments/               Payments (shell only)
     user/agreement/              Agreement (shell only)
   (admin)/
-    admin/dashboard/             Admin panel (planned)
+    admin/dashboard/             Admin summary panel (shipped)
+    admin/listings/              Admin listing management table (shipped)
+    admin/analytics/             Admin analytics dashboard (shipped)
   api/
     auth/[...nextauth]/          Auth.js handler
     auth/register/               Email/password registration
@@ -64,15 +68,23 @@ app/
     user/                        GET/PATCH (own profile)
     user/booking-requests/       GET (own request history)
     dashboard/                   Owner dashboard stats
+    admin/listings/              GET (paginated) + admin sub-routes
+    admin/listings/[id]/         GET, PATCH, DELETE (admin override)
+    admin/listings/stats/        GET (status counts)
+    admin/listings/bulk/         PATCH (bulk suspend/activate/delete)
+    admin/analytics/             GET (BI dashboard data)
+    cron/cleanup-tokens/         GET (expired token purge)
 components/
   listing-details/               Detail-page section components
   home/                          Homepage-specific components
   navbar/                        AppNavBar
+  session-provider.tsx           Dynamic SessionProvider (SSR-safe)
   ui/                            shadcn-style primitives
 lib/
   auth.ts                        Auth.js configuration
-  auth-helpers.ts                requireAuth() helper
+  auth-helpers.ts                requireAuth() + requireAdminApi() helpers
   prisma.ts                      Prisma singleton
+  email.ts                       Nodemailer transport + branded email helpers
   listing-service.ts             getListingById, updateListing,
                                  deleteListing, markListingRented,
                                  markListingAvailable
@@ -111,7 +123,9 @@ proxy.ts                         Next.js Middleware (auth redirects)
 | `/owner/booking-requests` | `(owner)` | Protected |
 | `/user/dashboard` | `(user)` | Protected (WIP) |
 | `/user/saved` | `(user)` | Protected (WIP) |
-| `/admin/dashboard` | `(admin)` | Protected (planned) |
+| `/admin/dashboard` | `(admin)` | Protected, ADMIN role |
+| `/admin/listings` | `(admin)` | Protected, ADMIN role |
+| `/admin/analytics` | `(admin)` | Protected, ADMIN role |
 
 ---
 
@@ -164,9 +178,18 @@ proxy.ts                         Next.js Middleware (auth redirects)
 **`lib/listing-service.ts`** centralizes complex listing logic:
 - `getListingById(id)` — full detail query including all sub-models
 - `updateListing(id, ownerId, data)` — ownership-checked update
-- `deleteListing(id, ownerId, role)` — deletes listing + Cloudinary images
+- `deleteListing(id, ownerId, role)` — deletes listing + Cloudinary images; accepts `role = "ADMIN"` to skip owner check
 - `markListingRented(listingId, ownerId, tx?)` — accepts an optional transaction context (used by the booking accept flow)
 - `markListingAvailable(listingId, ownerId)` — reverses RENTED status
+
+**`lib/auth-helpers.ts`** exports two guards:
+- `requireAuth()` — returns `{ user, error }` for any authenticated session
+- `requireAdminApi()` — returns `{ user, error }` and rejects non-ADMIN sessions with `403`
+
+**`lib/email.ts`** — Nodemailer-based email utility:
+- Lazy singleton transport; reads `EMAIL_HOST/PORT/USER/PASS` from env
+- Falls back to `jsonTransport` + console logging in dev when SMTP is unconfigured
+- Exports `sendVerificationEmail(to, rawToken)` for email verification flows
 
 **Denormalized rating aggregates:**
 - `Listing` stores `avgRating`, `avgCleanliness`, `avgAccuracy`, `avgCheckIn`, `avgCommunication`, `avgLocation`, `avgValue`, and `reviewCount`
@@ -199,10 +222,31 @@ Owner → PATCH /api/booking-requests/[requestId]
 
 ---
 
+## Admin Moderation Flow
+
+```
+Admin → GET /api/admin/listings
+         → paginated listing index with search + status filters
+
+Admin → PATCH /api/admin/listings/[id]
+         { status: "SUSPENDED" }
+         → sets Listing.status = SUSPENDED, isAvailable = false
+
+Admin → PATCH /api/admin/listings/bulk
+         { ids: [...], action: "DELETE" | "SUSPEND" | "ACTIVATE" }
+         → bulk operation in $transaction
+
+Admin → GET /api/admin/analytics?range=30d
+         → KPIs, time-series, donut, bar, top listings, recent bookings
+```
+
+---
+
 ## UI Architecture
 
 - Reusable primitives in `components/ui/` (shadcn-style composition)
 - Page-specific components in `components/listing-details/`, `components/home/`, `components/navbar/`
+- `components/session-provider.tsx` — dynamically imports `next-auth/react`'s `SessionProvider` with `ssr: false` to prevent prerender failures on `/_global-error`
 - Client forms use `"use client"` directive; data fetching happens in Server Components or route handlers
 
 **Styling conventions:**
@@ -217,6 +261,5 @@ Owner → PATCH /api/booking-requests/[requestId]
 
 - User profile page UI not complete
 - Saved listings API + UI not complete
-- Admin moderation panel not started
 - Server-side validation on `/api/auth/register` is minimal
 - Seed data exists (`prisma/seed.ts`) but coverage may be partial

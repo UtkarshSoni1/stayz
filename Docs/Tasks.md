@@ -1,6 +1,6 @@
 # StayZ Task Plan
 
-Last synced: **commit 6bc6867 — booking request system**
+Last synced: **Admin dashboard + analytics system (2026-07-20)**
 
 ---
 
@@ -78,7 +78,28 @@ Last synced: **commit 6bc6867 — booking request system**
 - [x] Owner dashboard
 - [x] Owner "My Listings" page
 - [x] Add listing form
+- [x] Edit listing form (`owner/add-listing?edit=<id>` via reusable `ListingForm`)
 - [x] Owner booking-requests page
+
+### Admin Panel
+- [x] Admin dashboard (`/admin/dashboard`) with summary KPIs
+- [x] Admin listings management (`/admin/listings`) — paginated table with search, status filter, bulk actions
+- [x] Admin analytics dashboard (`/admin/analytics`) — area, line, donut, bar charts + data tables
+- [x] `GET /api/admin/listings` — paginated listing index with admin filters
+- [x] `GET /api/admin/listings/stats` — status-grouped counts
+- [x] `GET /api/admin/listings/[id]` — full listing detail with booking counts
+- [x] `PATCH /api/admin/listings/[id]` — admin status override (including `SUSPENDED`)
+- [x] `DELETE /api/admin/listings/[id]` — admin hard delete
+- [x] `PATCH /api/admin/listings/bulk` — bulk SUSPEND / ACTIVATE / DELETE
+- [x] `GET /api/admin/analytics` — BI aggregation with `range` param (`7d/30d/90d/1y`)
+- [x] `requireAdminApi()` helper in `lib/auth-helpers.ts`
+- [x] `SUSPENDED` added to `ListingStatus` enum
+
+### Email & Infrastructure
+- [x] `lib/email.ts` — Nodemailer transport with dev fallback (console logging)
+- [x] `sendVerificationEmail(to, rawToken)` — branded HTML email template
+- [x] `GET /api/cron/cleanup-tokens` — expired VerificationToken purge endpoint
+- [x] `components/session-provider.tsx` — SSR-safe dynamic SessionProvider import
 
 ### Public Pages
 - [x] Home page
@@ -91,7 +112,7 @@ Last synced: **commit 6bc6867 — booking request system**
 ## 🚧 In Progress
 
 - [ ] User profile page UI (`/user/dashboard`)
-- [ ] Saved listings UI (schema ready, API + page not done)
+- [ ] Saved listings UI + `GET /api/saved` (schema ready, API + page not done)
 
 ---
 
@@ -101,12 +122,12 @@ Last synced: **commit 6bc6867 — booking request system**
 - [ ] Design consistency pass across owner/user pages
 - [ ] Framer Motion page transitions
 - [ ] Server-side validation hardening on `/api/auth/register`
-- [ ] Edit listing page UI
+- [ ] Email verification flow integration with `/auth/verify` route
 
 ### Phase 2: Engagement
 - [ ] Saved/bookmarked listings (full API + UI)
 - [ ] Report listing flow
-- [ ] Admin dashboard and moderation tools
+- [ ] Admin listing moderation actions (hide from browse without delete)
 
 ### Phase 3: Growth
 - [ ] Email alerts for saved searches / cities
