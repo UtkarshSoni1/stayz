@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-export type ListingStatus = "ACTIVE" | "DRAFT" | "RENTED";
+export type ListingStatus = "ACTIVE" | "DRAFT" | "RENTED" | "SUSPENDED";
 
 const statusConfig: Record<
   ListingStatus,
@@ -23,12 +23,18 @@ const statusConfig: Record<
     className:
       "bg-zinc-500/15 text-zinc-400 border-zinc-500/30 shadow-zinc-500/10",
   },
+  SUSPENDED: {
+    label: "Suspended",
+    className:
+      "bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-rose-500/10",
+  },
 };
 
 const statusDot: Record<ListingStatus, string> = {
   ACTIVE: "bg-emerald-400",
   DRAFT: "bg-amber-400",
   RENTED: "bg-zinc-400",
+  SUSPENDED: "bg-rose-400",
 };
 
 interface ListingStatusBadgeProps {

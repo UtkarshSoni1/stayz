@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { ToastProvider } from "@/components/ui/toast";
-
+import { TooltipProvider } from "@/components/ui/tooltip"
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
@@ -53,7 +53,9 @@ export default async function RootLayout({
         <SessionProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <ToastProvider>
-              {children}
+              <TooltipProvider>
+                {children}
+              </TooltipProvider>
             </ToastProvider>
           </ThemeProvider>
         </SessionProvider>

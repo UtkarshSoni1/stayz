@@ -1,6 +1,5 @@
-export const dynamic = "force-dynamic";
-
 import { requireAdmin } from "@/lib/auth-helpers";
+import { AdminNavBar } from "@/components/admin/AdminNavBar";
 
 export default async function AdminLayout({
   children,
@@ -8,5 +7,10 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   await requireAdmin();
-  return <>{children}</>;
+  return (
+    <>
+      <AdminNavBar />
+      {children}
+    </>
+  );
 }

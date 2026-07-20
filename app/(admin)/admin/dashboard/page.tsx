@@ -131,32 +131,6 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      {/* Top Bar */}
-      <header className="border-b border-white/[0.08] bg-[#0d0d0d] sticky top-0 z-40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10">
-              <ShieldCheck className="h-4 w-4 text-red-400" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-white">StayZ Admin</span>
-              <span className="ml-2 rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400 uppercase tracking-wider">
-                Admin Panel
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-white/40">{session.user.email}</span>
-            <Link
-              href="/"
-              className="text-xs text-white/40 hover:text-white transition-colors"
-            >
-              ← Back to Site
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Page Header */}

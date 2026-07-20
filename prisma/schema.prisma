@@ -282,6 +282,7 @@ enum ListingStatus {
   ACTIVE
   DRAFT
   RENTED
+  SUSPENDED
 }
 
 enum RoomType {

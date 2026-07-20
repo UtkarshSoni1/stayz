@@ -34,6 +34,40 @@ export async function requireAuth(): Promise<
   }
 }
 
+// ─── API Route Guard (Admin only) ────────────────────────────────────────────
+
+/**
+ * Resolves the current Auth.js session and ensures the user has the ADMIN role.
+ * Returns the user object on success, or a ready-to-send 401/403 NextResponse.
+ * Use this inside admin API route handlers.
+ */
+export async function requireAdminApi(): Promise<
+  { user: AuthenticatedUser; error: null } | { user: null; error: NextResponse }
+> {
+  const session = await auth()
+
+  if (!session?.user?.id) {
+    const body: ApiErrorResponse = {
+      success: false,
+      error: "You must be signed in to perform this action.",
+    }
+    return { user: null, error: NextResponse.json(body, { status: 401 }) }
+  }
+
+  if (session.user.role !== "ADMIN") {
+    const body: ApiErrorResponse = {
+      success: false,
+      error: "Insufficient permissions.",
+    }
+    return { user: null, error: NextResponse.json(body, { status: 403 }) }
+  }
+
+  return {
+    user: { id: session.user.id, role: session.user.role },
+    error: null,
+  }
+}
+
 // ─── Server Component / Page Guards ──────────────────────────────────────────
 // These helpers are for use in Server Components (layouts / pages).
 // They call redirect() which throws internally — no return value needed.
