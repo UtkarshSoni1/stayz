@@ -20,6 +20,7 @@ model User {
   image              String?
   bio                String?              // free-text bio shown on user profile page
   role               Role                 @default(USER)
+  accountStatus      AccountStatus        @default(ACTIVE)
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   emailVerified      DateTime?
@@ -40,6 +41,8 @@ model User {
   sessions           Session[]
   hostPersonalDetails HostPersonalDetail[] @relation("UserHostDetails")
   bookingRequests    BookingRequest[]      @relation("UserBookingRequests")
+  reportsFiled       Report[]             @relation("ReporterUser")
+  reportsReceived    Report[]             @relation("ReportedUser")
 }
 
 model HostPersonalDetail {
@@ -146,6 +149,7 @@ model Listing {
   sleepingArrangements SleepingArrangement[] @relation("ListingSleepingArrangements")
   thingsToKnow         ThingToKnow[]         @relation("ListingThingsToKnow")
   bookingRequests      BookingRequest[]      @relation("ListingBookingRequests")
+  reports              Report[]              @relation("ListingReports")
 
   @@index([city, locality])
   @@index([monthlyRent])
@@ -278,6 +282,12 @@ enum Role {
   ADMIN
 }
 
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
 enum ListingStatus {
   ACTIVE
   DRAFT
@@ -310,6 +320,17 @@ enum RequestStatus {
   REJECTED
 }
 
+enum ReportType {
+  USER
+  LISTING
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Booking Requests (Instagram-style accept/reject tenancy proof)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -328,4 +349,31 @@ model BookingRequest {
   user        User          @relation("UserBookingRequests", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([listingId, userId, status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reports (admin-facing content moderation)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Report {
+  id                String       @id @default(cuid())
+  reportType        ReportType
+  reason            String
+  description       String?      // optional extended description by reporter
+  status            ReportStatus @default(PENDING)
+  reporterId        String
+  reportedUserId    String?
+  reportedListingId String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  reporter          User         @relation("ReporterUser", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser      User?        @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
+  reportedListing   Listing?     @relation("ListingReports", fields: [reportedListingId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([reportType])
+  @@index([reporterId])
+  @@index([reportedUserId])
+  @@index([reportedListingId])
 }

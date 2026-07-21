@@ -21,13 +21,14 @@ export const metadata = {
 };
 
 async function getAdminStats() {
-  const [totalUsers, totalOwners, totalListings] = await Promise.all([
+  const [totalUsers, totalOwners, totalListings, pendingReports] = await Promise.all([
     prisma.user.count({ where: { role: "USER" } }),
     prisma.user.count({ where: { role: "OWNER" } }),
     prisma.listing.count(),
+    prisma.report.count({ where: { status: "PENDING" } }),
   ]);
 
-  return { totalUsers, totalOwners, totalListings, pendingReports: 0 };
+  return { totalUsers, totalOwners, totalListings, pendingReports };
 }
 
 export default async function AdminDashboardPage() {
