@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import Link from "next/link";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   Search,
   CheckCircle,
@@ -334,43 +335,49 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Manage Listings</h1>
-            <p className="mt-1 text-sm text-white/40">Review, approve, suspend, or delete room listings across StayZ.</p>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Tooltip wrapper for coming soon placeholders */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-white/10 bg-white/5 text-xs text-white/40 cursor-not-allowed select-none">
-                    <AlertCircle className="h-3.5 w-3.5" />
-                    <span>Reports</span>
-                    <Badge className="bg-white/5 text-white/30 text-[9px] scale-90 ml-1 py-0 px-1 border-white/5">Soon</Badge>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="bg-zinc-900 border border-white/10 text-white text-xs">
-                  Moderator report tracking coming soon.
-                </TooltipContent>
-              </Tooltip>
+        <AdminPageHeader
+          icon={Home}
+          iconBg="bg-emerald-500/10"
+          iconColor="text-emerald-400"
+          title="Manage Listings"
+          description="Review, approve, suspend, or delete room listings across StayZ."
+          breadcrumbs={[
+            { label: "Admin", href: "/admin/dashboard" },
+            { label: "Listings" },
+          ]}
+          action={
+            <div className="flex items-center gap-2">
+              {/* Tooltip wrapper for coming soon placeholders */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-white/10 bg-white/5 text-xs text-white/40 cursor-not-allowed select-none">
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      <span>Reports</span>
+                      <Badge className="bg-white/5 text-white/30 text-[9px] scale-90 ml-1 py-0 px-1 border-white/5">Soon</Badge>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-zinc-900 border border-white/10 text-white text-xs">
+                    Moderator report tracking coming soon.
+                  </TooltipContent>
+                </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-white/10 bg-white/5 text-xs text-white/40 cursor-not-allowed select-none">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    <span>Quality Score</span>
-                    <Badge className="bg-white/5 text-white/30 text-[9px] scale-90 ml-1 py-0 px-1 border-white/5">Soon</Badge>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="bg-zinc-900 border border-white/10 text-white text-xs">
-                  Automated property listing quality metrics coming soon.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-white/10 bg-white/5 text-xs text-white/40 cursor-not-allowed select-none">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <span>Quality Score</span>
+                      <Badge className="bg-white/5 text-white/30 text-[9px] scale-90 ml-1 py-0 px-1 border-white/5">Soon</Badge>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-zinc-900 border border-white/10 text-white text-xs">
+                    Automated property listing quality metrics coming soon.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          }
+        />
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">

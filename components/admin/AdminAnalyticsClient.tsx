@@ -9,7 +9,9 @@ import {
   TrendingUp,
   ArrowUpRight,
   Star,
+  BarChart3,
 } from "lucide-react";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   Select,
   SelectContent,
@@ -308,28 +310,30 @@ export function AdminAnalyticsClient() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Page Header + Range Selector */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Analytics
-            </h1>
-            <p className="mt-1 text-sm text-white/40">
-              Platform-wide performance metrics and trends.
-            </p>
-          </div>
-          <Select value={range} onValueChange={setRange}>
-            <SelectTrigger className="w-[180px] bg-black/40 border-white/10 text-white h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-[#111] border-white/10 text-white">
-              <SelectItem value="7d">Last 7 Days</SelectItem>
-              <SelectItem value="30d">Last 30 Days</SelectItem>
-              <SelectItem value="90d">Last 90 Days</SelectItem>
-              <SelectItem value="1y">Last Year</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <AdminPageHeader
+          icon={BarChart3}
+          iconBg="bg-cyan-500/10"
+          iconColor="text-cyan-400"
+          title="Analytics"
+          description="Platform-wide performance metrics and trends."
+          breadcrumbs={[
+            { label: "Admin", href: "/admin/dashboard" },
+            { label: "Analytics" },
+          ]}
+          action={
+            <Select value={range} onValueChange={setRange}>
+              <SelectTrigger className="w-[180px] bg-black/40 border-white/10 text-white h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-[#111] border-white/10 text-white">
+                <SelectItem value="7d">Last 7 Days</SelectItem>
+                <SelectItem value="30d">Last 30 Days</SelectItem>
+                <SelectItem value="90d">Last 90 Days</SelectItem>
+                <SelectItem value="1y">Last Year</SelectItem>
+              </SelectContent>
+            </Select>
+          }
+        />
 
         {/* Error State */}
         {error && (
