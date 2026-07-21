@@ -49,6 +49,12 @@ export const TopNavBar: React.FC = () => {
         >
           {scrolled ? "Browse" : "Listings"}
         </Link>
+        <Link
+          href="/developers"
+          className={`text-sm font-semibold hover:opacity-60 transition-opacity whitespace-nowrap ${textColor}`}
+        >
+          {scrolled ? "Developers" : "Developers"}
+        </Link>
 
         {/* Auth */}
         {session?.user ? (
