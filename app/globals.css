@@ -46,6 +46,30 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* StayZ Dark Theme Utility Tokens (Phase 1 — additive) */
+  --color-stayz-surface-base: var(--stayz-surface-base);
+  --color-stayz-surface-card: var(--stayz-surface-card);
+  --color-stayz-surface-elevated: var(--stayz-surface-elevated);
+  --color-stayz-surface-hover: var(--stayz-surface-hover);
+  --color-stayz-border-default: var(--stayz-border-default);
+  --color-stayz-border-subtle: var(--stayz-border-subtle);
+  --color-stayz-border-divider: var(--stayz-border-divider);
+  --color-stayz-status-success: var(--stayz-status-success);
+  --color-stayz-status-success-fg: var(--stayz-status-success-fg);
+  --color-stayz-status-warning: var(--stayz-status-warning);
+  --color-stayz-status-warning-fg: var(--stayz-status-warning-fg);
+  --color-stayz-status-error: var(--stayz-status-error);
+  --color-stayz-status-error-fg: var(--stayz-status-error-fg);
+  --color-stayz-status-info: var(--stayz-status-info);
+  --color-stayz-status-info-fg: var(--stayz-status-info-fg);
+  --color-stayz-status-neutral: var(--stayz-status-neutral);
+  --color-stayz-status-neutral-fg: var(--stayz-status-neutral-fg);
+  --color-stayz-text-primary: var(--stayz-text-primary);
+  --color-stayz-text-secondary: var(--stayz-text-secondary);
+  --color-stayz-text-muted: var(--stayz-text-muted);
+  --color-stayz-text-disabled: var(--stayz-text-disabled);
+  --color-stayz-overlay-backdrop: var(--stayz-overlay-backdrop);
 }
 
 :root {
@@ -115,6 +139,48 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* ─── StayZ Dark Theme Tokens (Phase 1 — additive, unconsumed) ─── */
+  /* Source: design.md audit. Not yet referenced by any component. */
+
+  /* Surfaces */
+  --stayz-surface-base: #0a0a0a;
+  --stayz-surface-card: #111111;
+  --stayz-surface-elevated: #1a1a1a;
+  --stayz-surface-hover: rgba(255, 255, 255, 0.05);
+
+  /* Borders */
+  --stayz-border-default: rgba(255, 255, 255, 0.1);
+  --stayz-border-subtle: rgba(255, 255, 255, 0.05);
+  --stayz-border-divider: rgba(255, 255, 255, 0.2);
+
+  /* Status / Semantic */
+  /* Note: existing variants in code (e.g., bg-green-500/10 [14x], border-green-500/20 [10x], border-emerald-500/30 [4x]) not yet migrated */
+  --stayz-status-success: rgba(16, 185, 129, 0.1);
+  --stayz-status-success-fg: #34d399;
+
+  /* Note: existing variants in code (e.g., bg-yellow-500/10 [4x], bg-orange-500/10 [11x], text-orange-400 [5x]) not yet migrated */
+  --stayz-status-warning: rgba(245, 158, 11, 0.1);
+  --stayz-status-warning-fg: #fbbf24;
+
+  /* Note: existing variants in code (e.g., bg-red-500/10 [19x], bg-red-500/20 [4x]) not yet migrated */
+  --stayz-status-error: rgba(244, 63, 94, 0.15);
+  --stayz-status-error-fg: #fb7185;
+
+  --stayz-status-info: rgba(59, 130, 246, 0.1);
+  --stayz-status-info-fg: #60a5fa;
+
+  --stayz-status-neutral: rgba(113, 113, 122, 0.1);
+  --stayz-status-neutral-fg: #a1a1aa;
+
+  /* Text */
+  --stayz-text-primary: #ffffff;
+  --stayz-text-secondary: rgba(255, 255, 255, 0.6);
+  --stayz-text-muted: rgba(255, 255, 255, 0.4);
+  --stayz-text-disabled: rgba(255, 255, 255, 0.2);
+
+  /* Overlay & Shadows */
+  --stayz-overlay-backdrop: rgba(0, 0, 0, 0.4);
 }
 
 @layer base {
