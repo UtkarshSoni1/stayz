@@ -377,3 +377,21 @@ model Report {
   @@index([reportedUserId])
   @@index([reportedListingId])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Platform Settings (singleton)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Global admin-controlled platform toggles. Only ever one row (id = "singleton").
+/// maintenanceMode enforcement is out of scope here — the flag is persisted for
+/// future middleware wiring.
+model PlatformSettings {
+  id                  String   @id @default("singleton")
+  maintenanceMode     Boolean  @default(false)
+  signupsEnabled      Boolean  @default(true)
+  autoApproveListings Boolean  @default(true)
+  featuredCities      String[] @default([])
+  supportEmail        String?
+  updatedAt           DateTime @updatedAt
+  updatedBy           String?  // admin userId — plain string, no relation
+}

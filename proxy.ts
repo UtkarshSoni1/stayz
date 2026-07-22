@@ -25,21 +25,26 @@ function getDashboardForRole(role: string | undefined): string {
 }
 
 export async function proxy(request: NextRequest) {
-  const session = await auth();
   const { pathname } = request.nextUrl;
-  const role = (session?.user as { role?: string } | undefined)?.role;
-  const isAuthenticated = !!session?.user?.id;
 
   // ── 1. Public assets / routes ──────────────────────────────────────────────
   if (isPublicPath(pathname)) {
     // If authenticated user tries to visit login/signup, redirect to their dashboard
-    if (isAuthenticated && (pathname === "/login" || pathname === "/signup")) {
-      return NextResponse.redirect(
-        new URL(getDashboardForRole(role), request.url)
-      );
+    if (pathname === "/login" || pathname === "/signup") {
+      const session = await auth();
+      if (session?.user?.id) {
+        const role = (session?.user as { role?: string } | undefined)?.role;
+        return NextResponse.redirect(
+          new URL(getDashboardForRole(role), request.url)
+        );
+      }
     }
     return NextResponse.next();
   }
+
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const isAuthenticated = !!session?.user?.id;
 
   // ── 2. Unauthenticated — redirect to login ─────────────────────────────────
   if (!isAuthenticated) {

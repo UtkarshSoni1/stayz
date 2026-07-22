@@ -10,7 +10,6 @@ import {
   Building2,
   AlertTriangle,
   ChevronRight,
-  Settings,
   BarChart3,
   ShieldCheck,
 } from "lucide-react";
@@ -119,14 +118,6 @@ export default async function AdminDashboardPage() {
       href: "/admin/analytics",
       accent: "text-cyan-400",
       bg: "bg-cyan-500/10",
-    },
-    {
-      icon: Settings,
-      label: "Settings",
-      desc: "Configure platform settings",
-      href: "/admin/settings",
-      accent: "text-slate-400",
-      bg: "bg-slate-500/10",
     },
   ];
 

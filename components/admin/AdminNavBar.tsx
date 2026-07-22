@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -13,6 +14,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SettingsDialog } from "@/components/admin/SettingsDialog";
 
 interface NavItem {
   label: string;
@@ -69,15 +71,7 @@ const CENTER_NAV_ITEMS: NavItem[] = [
 export function AdminNavBar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-
-  const settingsItem: NavItem = {
-    label: "Settings",
-    href: "/admin/settings",
-    icon: Settings,
-    accent: "text-slate-400",
-    bg: "bg-slate-500/10",
-    border: "border-slate-500/20",
-  };
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const renderLink = (item: NavItem, isIconOnlyOnMobile = true) => {
     const isActive = pathname.startsWith(item.href);
@@ -103,31 +97,45 @@ export function AdminNavBar() {
   };
 
   return (
-    <header className="border-b border-white/[0.08] bg-[#0d0d0d] sticky top-0 z-40">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-        {/* LEFT Flex Region: Brand mark + Settings link */}
-        <div className="flex items-center gap-4 flex-1 justify-start min-w-0">
-          {/* Brand Logo */}
-          <Link
-            href="/admin/dashboard"
-            className="flex items-center gap-2 pr-3 border-r border-white/10 shrink-0"
-          >
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/10">
-              <ShieldCheck className="h-4 w-4 text-red-400" />
-            </div>
-            <span className="text-xs font-bold text-white hidden sm:inline">
-              StayZ Admin
-            </span>
-            <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-semibold text-red-400 uppercase tracking-wider scale-90">
-              Panel
-            </span>
-          </Link>
+    <>
+      <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+      <header className="border-b border-white/[0.08] bg-[#0d0d0d] sticky top-0 z-40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+          {/* LEFT Flex Region: Brand mark + Settings button */}
+          <div className="flex items-center gap-4 flex-1 justify-start min-w-0">
+            {/* Brand Logo */}
+            <Link
+              href="/admin/dashboard"
+              className="flex items-center gap-2 pr-3 border-r border-white/10 shrink-0"
+            >
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/10">
+                <ShieldCheck className="h-4 w-4 text-red-400" />
+              </div>
+              <span className="text-xs font-bold text-white hidden sm:inline">
+                StayZ Admin
+              </span>
+              <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-semibold text-red-400 uppercase tracking-wider scale-90">
+                Panel
+              </span>
+            </Link>
 
-          {/* Settings link alone */}
-          <div className="shrink-0">
-            {renderLink(settingsItem, false)}
+            {/* Settings — opens dialog, not a route */}
+            <div className="shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-200 select-none",
+                  isSettingsOpen
+                    ? "bg-slate-500/10 text-slate-400 border-slate-500/20"
+                    : "border-transparent bg-transparent text-white/50 hover:text-white hover:bg-white/5"
+                )}
+              >
+                <Settings className="h-3.5 w-3.5" />
+                <span>Settings</span>
+              </button>
+            </div>
           </div>
-        </div>
 
         {/* CENTER Flex Region: Rest of links, evenly spaced */}
         <div className="flex-[2] flex justify-around max-w-xl mx-auto md:px-2 gap-1 overflow-x-auto scrollbar-none py-1">
@@ -148,7 +156,8 @@ export function AdminNavBar() {
             ← Back to Site
           </Link>
         </div>
-      </div>
-    </header>
+        </div>
+      </header>
+    </>
   );
 }
