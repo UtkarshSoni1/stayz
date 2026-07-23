@@ -475,3 +475,33 @@ The following table summarizes the Phase 1 canonical CSS custom properties defin
 | `--stayz-text-disabled` | `rgba(255, 255, 255, 0.2)` | Text & Content Colors (`text-white/20`) | defined, unconsumed | Disabled / placeholder text (23x) |
 | `--stayz-overlay-backdrop` | `rgba(0, 0, 0, 0.4)` | Backgrounds & Surfaces (`bg-black/40`) | defined, unconsumed | Modal & drawer backdrop overlay (34x) |
 
+---
+
+## Phase 2 — Status Tokens Consumed
+
+The status and badge-meaning colors across 7 scoped components and pages have been migrated to consume the canonical StayZ status tokens defined in Phase 1:
+
+| Token Utility Name | Consuming Files & Components | Migrated Hardcoded Classes (Before → After) |
+|---|---|---|
+| `bg-stayz-status-success`<br>`text-stayz-status-success-fg` | `components/my-listings/listing-status-badge.tsx`<br>`app/(admin)/admin/reports/reports-client.tsx`<br>`app/(owner)/owner/booking-requests/page.tsx`<br>`app/(user)/user/dashboard/page.tsx`<br>`components/add-listing/listing-status.tsx`<br>`components/admin/AdminListingsClient.tsx` | `bg-emerald-500/15`, `bg-emerald-500/10`, `bg-green-500/10`, `bg-green-500/20`, `bg-emerald-500/20` → `bg-stayz-status-success`<br>`text-emerald-400`, `text-green-400` → `text-stayz-status-success-fg`<br>`bg-emerald-400` → `bg-stayz-status-success-fg` |
+| `bg-stayz-status-neutral`<br>`text-stayz-status-neutral-fg` | `components/my-listings/listing-status-badge.tsx`<br>`app/(owner)/owner/booking-requests/page.tsx`<br>`components/add-listing/listing-status.tsx`<br>`components/admin/AdminListingsClient.tsx` | `bg-amber-500/15`, `bg-zinc-500/15`, `bg-amber-500/10`, `bg-zinc-500/10`, `bg-slate-500/10` → `bg-stayz-status-neutral`<br>`text-amber-400`, `text-zinc-400` → `text-stayz-status-neutral-fg` |
+| `bg-stayz-status-error`<br>`text-stayz-status-error-fg` | `components/my-listings/listing-status-badge.tsx`<br>`app/(owner)/owner/booking-requests/page.tsx`<br>`components/admin/AdminListingsClient.tsx` | `bg-rose-500/15`, `bg-red-500/10`, `bg-rose-500/10` → `bg-stayz-status-error`<br>`text-rose-400`, `text-red-400` → `text-stayz-status-error-fg` |
+| `bg-stayz-status-warning`<br>`text-stayz-status-warning-fg` | `app/(user)/user/dashboard/page.tsx` | `bg-yellow-500/10` → `bg-stayz-status-warning`<br>`text-yellow-400` → `text-stayz-status-warning-fg` |
+| `bg-stayz-status-info`<br>`text-stayz-status-info-fg` | `app/(admin)/admin/users/users-client.tsx`<br>`app/(user)/user/dashboard/page.tsx`<br>`components/admin/AdminListingsClient.tsx` | `bg-blue-500/10`, `bg-blue-500/20`, `bg-violet-500/10` → `bg-stayz-status-info`<br>`text-blue-400` → `text-stayz-status-info-fg` |
+
+---
+
+## Phase 3 — Surface & Border Tokens Consumed
+
+Structural background, container surface, hover state, border, and overlay backdrop classNames across the shared shell, primitives, and all admin pages/components have been migrated to consume the Phase 1 surface and border tokens.
+
+| Token Utility | Migrated Hardcoded Value(s) | Consuming Files |
+|---|---|---|
+| `bg-stayz-surface-base` | `bg-[#0a0a0a]`, `bg-[#0d0d0d]` | `AdminNavBar.tsx`, `AdminListingsClient.tsx`, `AdminAnalyticsClient.tsx`, `admin/dashboard/page.tsx` |
+| `bg-stayz-surface-card` | `bg-[#111]`, `bg-[#111]/80`, `bg-[#111]/60` | `SettingsDialog.tsx`, `users-client.tsx`, `owners-client.tsx`, `AdminListingsClient.tsx`, `AdminAnalyticsClient.tsx`, `admin/dashboard/page.tsx`, `toast.tsx` |
+| `bg-stayz-surface-elevated` | `bg-[#1a1a1a]` | `users-client.tsx` (SelectContent dropdowns), `owners-client.tsx` (SelectContent + ActionMenu) |
+| `bg-stayz-surface-hover` | `bg-white/5`, `bg-white/[0.02]`, `bg-white/[0.03]`, `bg-white/[0.04]`, `bg-white/[0.05]`, `bg-white/[0.06]` | `AdminNavBar.tsx`, `SettingsDialog.tsx`, `users-client.tsx`, `owners-client.tsx`, `AdminListingsClient.tsx`, `AdminAnalyticsClient.tsx`, `admin/dashboard/page.tsx` |
+| `border-stayz-border-subtle` | `border-white/[0.05]`, `border-white/[0.06]`, `border-white/[0.07]`, `border-white/[0.08]` | `AdminNavBar.tsx`, `AdminListingDrawer.tsx`, `SettingsDialog.tsx`, `sheet.tsx`, `users-client.tsx`, `owners-client.tsx`, `AdminListingsClient.tsx`, `AdminAnalyticsClient.tsx`, `admin/dashboard/page.tsx` |
+| `border-stayz-border-default` | `border-white/10`, `border-white/15` | `AdminNavBar.tsx`, `SettingsDialog.tsx`, `users-client.tsx`, `owners-client.tsx`, `AdminListingsClient.tsx`, `admin/dashboard/page.tsx`, `toast.tsx` |
+| `bg-stayz-overlay-backdrop` | `bg-black/50` | `sheet.tsx` |
+
