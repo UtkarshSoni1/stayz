@@ -227,24 +227,24 @@ export default async function UserDashboardPage() {
                 label="Monthly Rent"
                 value="₹12,000"
                 sub="Due on 5th"
-                accent="text-emerald-400"
-                bg="bg-emerald-500/20"
+                accent="text-stayz-status-success-fg"
+                bg="bg-stayz-status-success"
               />
               <StatCard
                 icon={Calendar}
                 label="Next Due Date"
                 value={nextDueDate.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                 sub={`${daysRemaining} days left`}
-                accent="text-blue-400"
-                bg="bg-blue-500/20"
+                accent="text-stayz-status-info-fg"
+                bg="bg-stayz-status-info"
               />
               <StatCard
                 icon={CheckCircle2}
                 label="Payment Status"
                 value="Paid"
                 sub="This month"
-                accent="text-green-400"
-                bg="bg-green-500/20"
+                accent="text-stayz-status-success-fg"
+                bg="bg-stayz-status-success"
               />
               <StatCard
                 icon={Shield}
@@ -263,7 +263,7 @@ export default async function UserDashboardPage() {
                 <SectionHeader title="Bills" icon={Zap} />
                 <div className="space-y-3">
                   {[
-                    { icon: Zap, label: "Electricity", amount: "₹850", status: "Pending", color: "text-yellow-400", bg: "bg-yellow-500/10" },
+                    { icon: Zap, label: "Electricity", amount: "₹850", status: "Pending", color: "text-stayz-status-warning-fg", bg: "bg-stayz-status-warning" },
                     { icon: Droplets, label: "Water", amount: "₹200", status: "Paid", color: "text-blue-400", bg: "bg-blue-500/10" },
                     { icon: Wrench, label: "Maintenance", amount: "₹500", status: "Paid", color: "text-orange-400", bg: "bg-orange-500/10" },
                     { icon: Wifi, label: "Internet", amount: "₹699", status: "Paid", color: "text-sky-400", bg: "bg-sky-500/10" },
@@ -280,8 +280,8 @@ export default async function UserDashboardPage() {
                       </div>
                       <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                         bill.status === "Paid"
-                          ? "bg-green-500/10 text-green-400"
-                          : "bg-yellow-500/10 text-yellow-400"
+                          ? "bg-stayz-status-success text-stayz-status-success-fg"
+                          : "bg-stayz-status-warning text-stayz-status-warning-fg"
                       }`}>
                         {bill.status}
                       </span>
@@ -299,12 +299,12 @@ export default async function UserDashboardPage() {
                   <SectionHeader title="Rental Agreement" icon={FileText} />
                   <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10">
-                        <CheckCircle2 className="h-4 w-4 text-green-400" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-stayz-status-success">
+                        <CheckCircle2 className="h-4 w-4 text-stayz-status-success-fg" />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-white">Agreement Status</p>
-                        <p className="text-xs text-green-400">Active & Signed</p>
+                        <p className="text-xs text-stayz-status-success-fg">Active & Signed</p>
                       </div>
                     </div>
                   </div>

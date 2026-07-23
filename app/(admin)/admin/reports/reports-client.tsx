@@ -202,7 +202,7 @@ function ViewReportDialog({
           )}
           {report.status !== "RESOLVED" && (
             <Button
-              className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+              className="bg-stayz-status-success text-stayz-status-success-fg border border-stayz-status-success-fg/20 hover:bg-stayz-status-success/80"
               disabled={!!acting}
               onClick={async () => {
                 setActing("resolve");

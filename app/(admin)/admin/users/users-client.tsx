@@ -86,7 +86,7 @@ function ActionMenu({
             className="fixed inset-0 z-10"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 top-8 z-20 w-44 rounded-xl border border-white/[0.08] bg-[#1a1a1a] py-1 shadow-xl shadow-black/40">
+          <div className="absolute right-0 top-8 z-20 w-44 rounded-xl border border-stayz-border-subtle bg-stayz-surface-elevated py-1 shadow-xl shadow-black/40">
             {items.map((item) => (
               <button
                 key={item.label}
@@ -97,7 +97,7 @@ function ActionMenu({
                 className={`flex w-full items-center gap-2.5 px-3 py-2 text-xs transition-colors ${
                   item.danger
                     ? "text-red-400 hover:bg-red-500/10"
-                    : "text-white/70 hover:bg-white/[0.06] hover:text-white"
+                    : "text-white/70 hover:bg-stayz-surface-hover hover:text-white"
                 }`}
               >
                 <item.icon className="h-3.5 w-3.5" />
@@ -137,15 +137,15 @@ function ViewUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#111] border-white/[0.08] text-white sm:max-w-lg">
+      <DialogContent className="bg-stayz-surface-card border-stayz-border-subtle text-white sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-white">User Details</DialogTitle>
         </DialogHeader>
-        <div className="rounded-xl border border-white/[0.06] overflow-hidden">
+        <div className="rounded-xl border border-stayz-border-subtle overflow-hidden">
           {rows.map(([label, value]) => (
             <div
               key={label}
-              className="flex items-center justify-between gap-4 px-4 py-3 border-b border-white/[0.04] last:border-0"
+              className="flex items-center justify-between gap-4 px-4 py-3 border-b border-stayz-border-subtle last:border-0"
             >
               <span className="text-xs text-white/40 shrink-0">{label}</span>
               <span className="text-xs text-white text-right">{value}</span>
@@ -155,7 +155,7 @@ function ViewUserDialog({
         <DialogFooter>
           <Button
             variant="ghost"
-            className="text-white/60 hover:text-white hover:bg-white/5"
+            className="text-white/60 hover:text-white hover:bg-stayz-surface-hover"
             onClick={() => onOpenChange(false)}
           >
             Close
@@ -196,7 +196,7 @@ function EditUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogContent className="bg-[#111] border-white/[0.08] text-white sm:max-w-md">
+      <DialogContent className="bg-stayz-surface-card border-stayz-border-subtle text-white sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white">Edit User</DialogTitle>
         </DialogHeader>
@@ -206,7 +206,7 @@ function EditUserDialog({
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20"
+              className="bg-stayz-surface-hover border-stayz-border-subtle text-white placeholder:text-white/20"
               placeholder="User's name"
             />
           </div>
@@ -215,7 +215,7 @@ function EditUserDialog({
             <Input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20"
+              className="bg-stayz-surface-hover border-stayz-border-subtle text-white placeholder:text-white/20"
               placeholder="user@example.com"
               type="email"
             />
@@ -224,14 +224,14 @@ function EditUserDialog({
         <DialogFooter>
           <Button
             variant="ghost"
-            className="text-white/60 hover:text-white hover:bg-white/5"
+            className="text-white/60 hover:text-white hover:bg-stayz-surface-hover"
             onClick={() => onOpenChange(false)}
             disabled={saving}
           >
             Cancel
           </Button>
           <Button
-            className="bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20"
+            className="bg-stayz-status-info text-stayz-status-info-fg border border-stayz-status-info-fg/20 hover:bg-stayz-status-info/80"
             disabled={saving}
             onClick={async () => {
               setSaving(true);
@@ -268,7 +268,7 @@ function ChangeRoleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#111] border-white/[0.08] text-white sm:max-w-sm">
+      <DialogContent className="bg-stayz-surface-card border-stayz-border-subtle text-white sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="text-white">Change Role</DialogTitle>
         </DialogHeader>
@@ -278,10 +278,10 @@ function ChangeRoleDialog({
             value={role}
             onValueChange={(v) => setRole(v as Role)}
           >
-            <SelectTrigger className="w-full bg-white/[0.04] border-white/[0.08] text-white">
+            <SelectTrigger className="w-full bg-stayz-surface-hover border-stayz-border-subtle text-white">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1a1a] border-white/[0.08] text-white">
+            <SelectContent className="bg-stayz-surface-elevated border-stayz-border-subtle text-white">
               <SelectItem value="USER">User</SelectItem>
               <SelectItem value="OWNER">Owner</SelectItem>
               <SelectItem value="ADMIN">Admin</SelectItem>
@@ -291,14 +291,14 @@ function ChangeRoleDialog({
         <DialogFooter>
           <Button
             variant="ghost"
-            className="text-white/60 hover:text-white hover:bg-white/5"
+            className="text-white/60 hover:text-white hover:bg-stayz-surface-hover"
             onClick={() => onOpenChange(false)}
             disabled={saving}
           >
             Cancel
           </Button>
           <Button
-            className="bg-violet-500/10 text-violet-400 border border-violet-500/20 hover:bg-violet-500/20"
+            className="bg-stayz-status-info text-stayz-status-info-fg border border-stayz-status-info-fg/20 hover:bg-stayz-status-info/80"
             disabled={saving || role === user.role}
             onClick={async () => {
               setSaving(true);
@@ -320,7 +320,7 @@ function ChangeRoleDialog({
 function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.06] mb-4">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-stayz-surface-hover border border-stayz-border-subtle mb-4">
         <Users className="h-7 w-7 text-white/20" />
       </div>
       <p className="text-sm font-medium text-white/50">
@@ -483,7 +483,7 @@ function UsersClientInner({
   return (
     <>
       {/* ── Toolbar ───────────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-white/[0.08] bg-[#111] p-5 mb-4">
+      <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-5 mb-4">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="relative flex-1">
@@ -492,16 +492,16 @@ function UsersClientInner({
               placeholder="Search by name, email, or ID…"
               value={search}
               onChange={(e) => applyFilters(e.target.value, role, status)}
-              className="pl-9 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/30"
+              className="pl-9 bg-stayz-surface-hover border-stayz-border-subtle text-white placeholder:text-white/30"
             />
           </div>
 
           {/* Role filter */}
           <Select value={role} onValueChange={(v) => applyFilters(search, v, status)}>
-            <SelectTrigger className="w-full sm:w-36 bg-white/[0.04] border-white/[0.08] text-white">
+            <SelectTrigger className="w-full sm:w-36 bg-stayz-surface-hover border-stayz-border-subtle text-white">
               <SelectValue placeholder="Role" />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1a1a] border-white/[0.08] text-white">
+            <SelectContent className="bg-stayz-surface-elevated border-stayz-border-subtle text-white">
               <SelectItem value="ALL">All Roles</SelectItem>
               <SelectItem value="USER">User</SelectItem>
               <SelectItem value="OWNER">Owner</SelectItem>
@@ -511,10 +511,10 @@ function UsersClientInner({
 
           {/* Status filter */}
           <Select value={status} onValueChange={(v) => applyFilters(search, role, v)}>
-            <SelectTrigger className="w-full sm:w-40 bg-white/[0.04] border-white/[0.08] text-white">
+            <SelectTrigger className="w-full sm:w-40 bg-stayz-surface-hover border-stayz-border-subtle text-white">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1a1a] border-white/[0.08] text-white">
+            <SelectContent className="bg-stayz-surface-elevated border-stayz-border-subtle text-white">
               <SelectItem value="ALL">All Statuses</SelectItem>
               <SelectItem value="ACTIVE">Active</SelectItem>
               <SelectItem value="SUSPENDED">Suspended</SelectItem>
@@ -525,7 +525,7 @@ function UsersClientInner({
       </div>
 
       {/* ── Table ─────────────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-white/[0.08] bg-[#111] overflow-hidden">
+      <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card overflow-hidden">
         {loading ? (
           <div className="divide-y divide-white/[0.04]">
             {Array.from({ length: 6 }).map((_, i) => (

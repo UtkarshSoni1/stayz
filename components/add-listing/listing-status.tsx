@@ -15,20 +15,20 @@ const STATUS_OPTIONS = [
     label: "Draft",
     description: "Save privately, not visible to others",
     emoji: "✏️",
-    color: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-400/30",
-    activeBg: "bg-amber-500/8",
+    color: "text-stayz-status-neutral-fg",
+    bg: "bg-stayz-status-neutral",
+    border: "border-stayz-status-neutral-fg/30",
+    activeBg: "bg-stayz-status-neutral/80",
   },
   {
     value: "ACTIVE" as const,
     label: "Active",
     description: "Publish now and start receiving inquiries",
     emoji: "✅",
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-400/30",
-    activeBg: "bg-emerald-500/8",
+    color: "text-stayz-status-success-fg",
+    bg: "bg-stayz-status-success",
+    border: "border-stayz-status-success-fg/30",
+    activeBg: "bg-stayz-status-success/80",
   },
 ]
 
@@ -37,7 +37,7 @@ export function ListingStatus({ status, onChange }: ListingStatusProps) {
     <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-500/10">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-stayz-status-neutral">
             <ToggleLeft className="h-4 w-4 text-slate-400" />
           </div>
           <div>

@@ -83,7 +83,7 @@ function ToggleRow({
           onChange={(e) => onChange(e.target.checked)}
           className="peer sr-only"
         />
-        <span className="absolute inset-0 rounded-full border border-white/10 bg-white/[0.06] transition-colors peer-checked:border-slate-500/40 peer-checked:bg-slate-600/60 peer-disabled:cursor-not-allowed peer-disabled:opacity-50" />
+        <span className="absolute inset-0 rounded-full border border-stayz-border-default bg-stayz-surface-hover transition-colors peer-checked:border-slate-500/40 peer-checked:bg-slate-600/60 peer-disabled:cursor-not-allowed peer-disabled:opacity-50" />
         <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white/30 shadow transition-transform peer-checked:translate-x-4 peer-checked:bg-white" />
       </label>
     </Field>
@@ -175,11 +175,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#111] border-white/[0.08] text-white sm:max-w-lg">
+      <DialogContent className="bg-stayz-surface-card border-stayz-border-subtle text-white sm:max-w-lg">
         {/* ── Header ── */}
         <DialogHeader>
           <div className="flex items-center gap-3 mb-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-500/10">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stayz-surface-hover">
               <Settings className="h-4 w-4 text-slate-400" />
             </div>
             <DialogTitle className="text-white">Platform Settings</DialogTitle>
@@ -193,13 +193,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         {loading ? (
           <div className="space-y-4 py-2">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-8 rounded-lg bg-white/[0.04] animate-pulse" />
+              <div key={i} className="h-8 rounded-lg bg-stayz-surface-hover animate-pulse" />
             ))}
           </div>
         ) : (
           <FieldGroup className="gap-5">
             {/* ── Toggles ── */}
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.06] px-4 py-1">
+            <div className="rounded-xl border border-stayz-border-subtle bg-stayz-surface-hover divide-y divide-stayz-border-subtle px-4 py-1">
               <div className="py-3">
                 <ToggleRow
                   id="maintenanceMode"
@@ -245,7 +245,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 onChange={(e) => patch("featuredCities", e.target.value)}
                 placeholder="Mumbai, Delhi, Bangalore"
                 disabled={busy}
-                className="bg-white/[0.04] border-white/10 text-white placeholder:text-white/20 focus-visible:border-slate-500/40 focus-visible:ring-slate-500/20"
+                className="bg-stayz-surface-hover border-stayz-border-default text-white placeholder:text-white/20 focus-visible:border-slate-500/40 focus-visible:ring-slate-500/20"
               />
             </Field>
 
@@ -263,7 +263,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 onChange={(e) => patch("supportEmail", e.target.value)}
                 placeholder="support@stayz.in"
                 disabled={busy}
-                className="bg-white/[0.04] border-white/10 text-white placeholder:text-white/20 focus-visible:border-slate-500/40 focus-visible:ring-slate-500/20"
+                className="bg-stayz-surface-hover border-stayz-border-default text-white placeholder:text-white/20 focus-visible:border-slate-500/40 focus-visible:ring-slate-500/20"
               />
             </Field>
           </FieldGroup>
@@ -273,7 +273,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         <DialogFooter className="mt-2">
           <Button
             variant="ghost"
-            className="text-white/60 hover:text-white hover:bg-white/5"
+            className="text-white/60 hover:text-white hover:bg-stayz-surface-hover"
             onClick={() => onOpenChange(false)}
             disabled={busy}
           >

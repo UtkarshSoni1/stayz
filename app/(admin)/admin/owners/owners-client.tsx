@@ -67,7 +67,7 @@ function ActionMenu({
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-8 z-20 w-44 rounded-xl border border-white/[0.08] bg-[#1a1a1a] py-1 shadow-xl shadow-black/40">
+          <div className="absolute right-0 top-8 z-20 w-44 rounded-xl border border-stayz-border-subtle bg-stayz-surface-elevated py-1 shadow-xl shadow-black/40">
             {items.map((item) => (
               <button
                 key={item.label}
@@ -78,7 +78,7 @@ function ActionMenu({
                 className={`flex w-full items-center gap-2.5 px-3 py-2 text-xs transition-colors ${
                   item.danger
                     ? "text-red-400 hover:bg-red-500/10"
-                    : "text-white/70 hover:bg-white/[0.06] hover:text-white"
+                    : "text-white/70 hover:bg-stayz-surface-hover hover:text-white"
                 }`}
               >
                 <item.icon className="h-3.5 w-3.5" />
@@ -108,7 +108,7 @@ function StatsBar({ data }: { data: AdminOwnerDTO[] }) {
       ].map(({ label, value, color }) => (
         <div
           key={label}
-          className="rounded-xl border border-white/[0.06] bg-[#111] px-4 py-3"
+          className="rounded-xl border border-stayz-border-subtle bg-stayz-surface-card px-4 py-3"
         >
           <p className={`text-xl font-bold ${color}`}>{value}</p>
           <p className="text-xs text-white/40 mt-0.5">{label}</p>
@@ -123,7 +123,7 @@ function StatsBar({ data }: { data: AdminOwnerDTO[] }) {
 function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.06] mb-4">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-stayz-surface-hover border border-stayz-border-subtle mb-4">
         <Building2 className="h-7 w-7 text-white/20" />
       </div>
       <p className="text-sm font-medium text-white/50">
@@ -242,7 +242,7 @@ function OwnersClientInner({
       <StatsBar data={data.data} />
 
       {/* ── Toolbar ───────────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-white/[0.08] bg-[#111] p-5 mb-4">
+      <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-5 mb-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
@@ -250,14 +250,14 @@ function OwnersClientInner({
               placeholder="Search by name, email, or ID…"
               value={search}
               onChange={(e) => applyFilters(e.target.value, status)}
-              className="pl-9 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/30"
+              className="pl-9 bg-stayz-surface-hover border-stayz-border-subtle text-white placeholder:text-white/30"
             />
           </div>
           <Select value={status} onValueChange={(v) => applyFilters(search, v)}>
-            <SelectTrigger className="w-full sm:w-40 bg-white/[0.04] border-white/[0.08] text-white">
+            <SelectTrigger className="w-full sm:w-40 bg-stayz-surface-hover border-stayz-border-subtle text-white">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1a1a] border-white/[0.08] text-white">
+            <SelectContent className="bg-stayz-surface-elevated border-stayz-border-subtle text-white">
               <SelectItem value="ALL">All Statuses</SelectItem>
               <SelectItem value="ACTIVE">Active</SelectItem>
               <SelectItem value="SUSPENDED">Suspended</SelectItem>
@@ -268,7 +268,7 @@ function OwnersClientInner({
       </div>
 
       {/* ── Table / Cards ─────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-white/[0.08] bg-[#111] overflow-hidden">
+      <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card overflow-hidden">
         {loading ? (
           <div className="divide-y divide-white/[0.04]">
             {Array.from({ length: 6 }).map((_, i) => (

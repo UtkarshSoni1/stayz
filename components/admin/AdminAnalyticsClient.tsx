@@ -187,7 +187,7 @@ function KPICard({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border ${border} bg-[#111]/80 p-5 backdrop-blur-sm shadow-lg`}
+      className={`relative overflow-hidden rounded-2xl border ${border} bg-stayz-surface-card p-5 backdrop-blur-sm shadow-lg`}
     >
       <div
         className={`absolute top-0 right-0 h-24 w-24 rounded-full ${bg} blur-3xl opacity-30`}
@@ -222,7 +222,7 @@ function BookingStatusBadge({ status }: { status: string }) {
   };
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${styles[status] ?? "bg-white/5 text-white/50 border-white/10"}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${styles[status] ?? "bg-stayz-surface-hover text-white/50 border-stayz-border-default"}`}
     >
       {status}
     </span>
@@ -237,11 +237,11 @@ function KPISkeletons() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl border border-white/[0.06] bg-[#111]/80 p-5 space-y-3"
+          className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-5 space-y-3"
         >
-          <Skeleton className="h-10 w-10 rounded-xl bg-white/[0.06]" />
-          <Skeleton className="h-3 w-20 bg-white/[0.06]" />
-          <Skeleton className="h-8 w-28 bg-white/[0.06]" />
+          <Skeleton className="h-10 w-10 rounded-xl bg-stayz-surface-hover" />
+          <Skeleton className="h-3 w-20 bg-stayz-surface-hover" />
+          <Skeleton className="h-8 w-28 bg-stayz-surface-hover" />
         </div>
       ))}
     </div>
@@ -251,20 +251,20 @@ function KPISkeletons() {
 function ChartSkeleton({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`rounded-2xl border border-white/[0.06] bg-[#111]/80 p-5 ${className}`}
+      className={`rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-5 ${className}`}
     >
-      <Skeleton className="h-4 w-40 mb-4 bg-white/[0.06]" />
-      <Skeleton className="h-[250px] w-full rounded-xl bg-white/[0.04]" />
+      <Skeleton className="h-4 w-40 mb-4 bg-stayz-surface-hover" />
+      <Skeleton className="h-[250px] w-full rounded-xl bg-stayz-surface-hover" />
     </div>
   );
 }
 
 function TableSkeleton() {
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-[#111]/80 p-5 space-y-3">
-      <Skeleton className="h-4 w-48 bg-white/[0.06]" />
+    <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-5 space-y-3">
+      <Skeleton className="h-4 w-48 bg-stayz-surface-hover" />
       {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} className="h-10 w-full bg-white/[0.04]" />
+        <Skeleton key={i} className="h-10 w-full bg-stayz-surface-hover" />
       ))}
     </div>
   );
@@ -308,7 +308,7 @@ export function AdminAnalyticsClient() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-stayz-surface-base text-white">
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <AdminPageHeader
           icon={BarChart3}
@@ -325,7 +325,7 @@ export function AdminAnalyticsClient() {
               <SelectTrigger className="w-[180px] bg-black/40 border-white/10 text-white h-9">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#111] border-white/10 text-white">
+              <SelectContent className="bg-stayz-surface-card border-stayz-border-default text-white">
                 <SelectItem value="7d">Last 7 Days</SelectItem>
                 <SelectItem value="30d">Last 30 Days</SelectItem>
                 <SelectItem value="90d">Last 90 Days</SelectItem>
@@ -395,7 +395,7 @@ export function AdminAnalyticsClient() {
         ) : data ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Revenue Area Chart */}
-            <div className="rounded-2xl border border-white/[0.06] bg-[#111]/80 p-5">
+            <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-5">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="h-4 w-4 text-emerald-400" />
                 <h3 className="text-sm font-semibold text-white">
@@ -475,7 +475,7 @@ export function AdminAnalyticsClient() {
             </div>
 
             {/* Bookings Line Chart */}
-            <div className="rounded-2xl border border-white/[0.06] bg-[#111]/80 p-5">
+            <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-5">
               <div className="flex items-center gap-2 mb-4">
                 <CalendarCheck className="h-4 w-4 text-blue-400" />
                 <h3 className="text-sm font-semibold text-white">
@@ -542,7 +542,7 @@ export function AdminAnalyticsClient() {
         ) : data ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Booking Status Donut */}
-            <div className="rounded-2xl border border-white/[0.06] bg-[#111]/80 p-5">
+            <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-5">
               <h3 className="text-sm font-semibold text-white mb-4">
                 Booking Status Distribution
               </h3>
@@ -583,7 +583,7 @@ export function AdminAnalyticsClient() {
             </div>
 
             {/* Revenue by City — Horizontal Bar */}
-            <div className="rounded-2xl border border-white/[0.06] bg-[#111]/80 p-5">
+            <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-5">
               <h3 className="text-sm font-semibold text-white mb-4">
                 Revenue by City (Top 8)
               </h3>
@@ -646,7 +646,7 @@ export function AdminAnalyticsClient() {
         {isLoading ? (
           <TableSkeleton />
         ) : data && data.topListings.length > 0 ? (
-          <div className="rounded-2xl border border-white/[0.06] bg-[#111]/80 overflow-hidden">
+          <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card overflow-hidden">
             <div className="px-5 pt-5 pb-3 flex items-center gap-2">
               <ArrowUpRight className="h-4 w-4 text-emerald-400" />
               <h3 className="text-sm font-semibold text-white">
@@ -657,7 +657,7 @@ export function AdminAnalyticsClient() {
               </span>
             </div>
             <Table>
-              <TableHeader className="border-b border-white/[0.06] bg-white/[0.01]">
+              <TableHeader className="border-b border-stayz-border-subtle bg-stayz-surface-hover">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-white/40 w-8">#</TableHead>
                   <TableHead className="text-white/40">Property</TableHead>
@@ -680,7 +680,7 @@ export function AdminAnalyticsClient() {
                 {data.topListings.map((listing, idx) => (
                   <TableRow
                     key={listing.id}
-                    className="hover:bg-white/[0.02]"
+                    className="hover:bg-stayz-surface-hover"
                   >
                     <TableCell className="text-white/30 font-mono text-xs">
                       {idx + 1}
@@ -721,7 +721,7 @@ export function AdminAnalyticsClient() {
         {isLoading ? (
           <TableSkeleton />
         ) : data && data.recentBookings.length > 0 ? (
-          <div className="rounded-2xl border border-white/[0.06] bg-[#111]/80 overflow-hidden">
+          <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card overflow-hidden">
             <div className="px-5 pt-5 pb-3 flex items-center gap-2">
               <CalendarCheck className="h-4 w-4 text-blue-400" />
               <h3 className="text-sm font-semibold text-white">
@@ -730,7 +730,7 @@ export function AdminAnalyticsClient() {
               <span className="text-xs text-white/30 ml-1">Last 20</span>
             </div>
             <Table>
-              <TableHeader className="border-b border-white/[0.06] bg-white/[0.01]">
+              <TableHeader className="border-b border-stayz-border-subtle bg-stayz-surface-hover">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-white/40">Listing</TableHead>
                   <TableHead className="text-white/40">User</TableHead>
@@ -746,7 +746,7 @@ export function AdminAnalyticsClient() {
                 {data.recentBookings.map((booking) => (
                   <TableRow
                     key={booking.id}
-                    className="hover:bg-white/[0.02]"
+                    className="hover:bg-stayz-surface-hover"
                   >
                     <TableCell>
                       <span className="font-medium text-white truncate max-w-[250px] block">

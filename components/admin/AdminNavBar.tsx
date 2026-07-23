@@ -137,25 +137,25 @@ export function AdminNavBar() {
             </div>
           </div>
 
-        {/* CENTER Flex Region: Rest of links, evenly spaced */}
-        <div className="flex-[2] flex justify-around max-w-xl mx-auto md:px-2 gap-1 overflow-x-auto scrollbar-none py-1">
-          {CENTER_NAV_ITEMS.map((item) => renderLink(item, true))}
-        </div>
+          {/* CENTER Flex Region: Rest of links, evenly spaced */}
+          <div className="flex-[2] flex justify-around max-w-xl mx-auto md:px-2 gap-1 overflow-x-auto scrollbar-none py-1">
+            {CENTER_NAV_ITEMS.map((item) => renderLink(item, true))}
+          </div>
 
-        {/* RIGHT Flex Region: Session email + Back to site link */}
-        <div className="flex items-center gap-3 flex-1 justify-end shrink-0 text-xs">
-          {session?.user?.email && (
-            <span className="text-white/40 hidden lg:inline max-w-[120px] truncate">
-              {session.user.email}
-            </span>
-          )}
-          <Link
-            href="/"
-            className="text-white/40 hover:text-white transition-colors py-1.5 px-2.5 rounded-lg border border-white/15 bg-white/5 font-semibold text-[11px]"
-          >
-            ← Back to Site
-          </Link>
-        </div>
+          {/* RIGHT Flex Region: Session email + Back to site link */}
+          <div className="flex items-center gap-3 flex-1 justify-end shrink-0 text-xs">
+            {session?.user?.email && (
+              <span className="text-white/40 hidden lg:inline max-w-[120px] truncate">
+                {session.user.email}
+              </span>
+            )}
+            <Link
+              href="/"
+              className="text-white/40 hover:text-white transition-colors py-1.5 px-2.5 rounded-lg border border-white/15 bg-white/5 font-semibold text-[11px]"
+            >
+              ← Back to Site
+            </Link>
+          </div>
         </div>
       </header>
     </>

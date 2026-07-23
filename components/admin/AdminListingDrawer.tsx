@@ -116,10 +116,10 @@ export function AdminListingDrawer({ id, open, onClose }: AdminListingDrawerProp
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
       <SheetContent
-        className="w-full sm:max-w-lg bg-[#0d0d0d] text-white border-l border-white/[0.08] p-0 flex flex-col h-full focus:outline-none"
+        className="w-full sm:max-w-lg bg-stayz-surface-base text-white border-l border-stayz-border-subtle p-0 flex flex-col h-full focus:outline-none"
         side="right"
       >
-        <SheetHeader className="p-6 border-b border-white/[0.08] flex flex-row items-center justify-between">
+        <SheetHeader className="p-6 border-b border-stayz-border-subtle flex flex-row items-center justify-between">
           <SheetTitle className="text-lg font-bold text-white">Listing Inspection</SheetTitle>
         </SheetHeader>
 
@@ -233,7 +233,7 @@ export function AdminListingDrawer({ id, open, onClose }: AdminListingDrawerProp
               </div>
 
               {/* Host / Owner Info */}
-              <div className="p-4 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+              <div className="p-4 rounded-xl border border-stayz-border-subtle bg-stayz-surface-hover">
                 <h4 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3">Property Owner</h4>
                 <div className="flex items-center gap-3">
                   {listing.owner.image ? (

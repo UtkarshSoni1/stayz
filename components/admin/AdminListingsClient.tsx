@@ -61,29 +61,29 @@ function AdminStatusBadge({ status }: { status: string }) {
   const configs: Record<string, { label: string; className: string; dot: string }> = {
     ACTIVE: {
       label: "Active",
-      className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-      dot: "bg-emerald-400",
+      className: "bg-stayz-status-success text-stayz-status-success-fg border-stayz-status-success-fg/20",
+      dot: "bg-stayz-status-success-fg",
     },
     DRAFT: {
       label: "Draft",
-      className: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-      dot: "bg-amber-400",
+      className: "bg-stayz-status-neutral text-stayz-status-neutral-fg border-stayz-status-neutral-fg/20",
+      dot: "bg-stayz-status-neutral-fg",
     },
     RENTED: {
       label: "Rented",
-      className: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-      dot: "bg-zinc-400",
+      className: "bg-stayz-status-neutral text-stayz-status-neutral-fg border-stayz-status-neutral-fg/20",
+      dot: "bg-stayz-status-neutral-fg",
     },
     SUSPENDED: {
       label: "Suspended",
-      className: "bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-rose-500/5",
-      dot: "bg-rose-400",
+      className: "bg-stayz-status-error text-stayz-status-error-fg border-stayz-status-error-fg/20 shadow-stayz-status-error/5",
+      dot: "bg-stayz-status-error-fg",
     },
   };
 
   const config = configs[status] || {
     label: status,
-    className: "bg-white/5 text-white/60 border-white/10",
+    className: "bg-stayz-surface-hover text-white/60 border-stayz-border-default",
     dot: "bg-white/40",
   };
 
@@ -333,7 +333,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
   const totalPages = Math.ceil(totalCount / limit);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-stayz-surface-base text-white">
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <AdminPageHeader
           icon={Home}
@@ -354,10 +354,10 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-white/10 bg-white/5 text-xs text-white/40 cursor-not-allowed select-none">
                       <AlertCircle className="h-3.5 w-3.5" />
                       <span>Reports</span>
-                      <Badge className="bg-white/5 text-white/30 text-[9px] scale-90 ml-1 py-0 px-1 border-white/5">Soon</Badge>
+                      <Badge className="bg-stayz-surface-hover text-white/30 text-[9px] scale-90 ml-1 py-0 px-1 border-stayz-border-subtle">Soon</Badge>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="bg-zinc-900 border border-white/10 text-white text-xs">
+                  <TooltipContent className="bg-stayz-surface-card border border-stayz-border-default text-white text-xs">
                     Moderator report tracking coming soon.
                   </TooltipContent>
                 </Tooltip>
@@ -367,10 +367,10 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-white/10 bg-white/5 text-xs text-white/40 cursor-not-allowed select-none">
                       <Sparkles className="h-3.5 w-3.5" />
                       <span>Quality Score</span>
-                      <Badge className="bg-white/5 text-white/30 text-[9px] scale-90 ml-1 py-0 px-1 border-white/5">Soon</Badge>
+                      <Badge className="bg-stayz-surface-hover text-white/30 text-[9px] scale-90 ml-1 py-0 px-1 border-stayz-border-subtle">Soon</Badge>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="bg-zinc-900 border border-white/10 text-white text-xs">
+                  <TooltipContent className="bg-stayz-surface-card border border-stayz-border-default text-white text-xs">
                     Automated property listing quality metrics coming soon.
                   </TooltipContent>
                 </Tooltip>
@@ -382,13 +382,13 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
         {/* Stats Row */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
           {[
-            { label: "Total Listings", val: stats.total, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
-            { label: "Active Listings", val: stats.active, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-            { label: "Draft Listings", val: stats.draft, color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
-            { label: "Rented Out", val: stats.rented, color: "text-zinc-400", bg: "bg-zinc-500/10", border: "border-zinc-500/20" },
-            { label: "Suspended", val: stats.suspended, color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20" },
+            { label: "Total Listings", val: stats.total, color: "text-stayz-status-info-fg", bg: "bg-stayz-status-info", border: "border-stayz-status-info-fg/20" },
+            { label: "Active Listings", val: stats.active, color: "text-stayz-status-success-fg", bg: "bg-stayz-status-success", border: "border-stayz-status-success-fg/20" },
+            { label: "Draft Listings", val: stats.draft, color: "text-stayz-status-neutral-fg", bg: "bg-stayz-status-neutral", border: "border-stayz-status-neutral-fg/20" },
+            { label: "Rented Out", val: stats.rented, color: "text-stayz-status-neutral-fg", bg: "bg-stayz-status-neutral", border: "border-stayz-status-neutral-fg/20" },
+            { label: "Suspended", val: stats.suspended, color: "text-stayz-status-error-fg", bg: "bg-stayz-status-error", border: "border-stayz-status-error-fg/20" },
           ].map((card, i) => (
-            <div key={i} className={`relative overflow-hidden rounded-xl border ${card.border} bg-[#111]/80 p-4 backdrop-blur-sm shadow-md`}>
+            <div key={i} className={`relative overflow-hidden rounded-xl border ${card.border} bg-stayz-surface-card p-4 backdrop-blur-sm shadow-md`}>
               <p className="text-xs text-white/40 font-semibold">{card.label}</p>
               <p className="mt-1 text-2xl font-bold tracking-tight text-white">{card.val}</p>
               <div className={`absolute top-2 right-2 rounded-lg p-1.5 ${card.bg}`}>
@@ -399,7 +399,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
         </div>
 
         {/* Search & Filter Bar */}
-        <div className="rounded-xl border border-white/[0.07] bg-[#111]/60 p-4 flex flex-col md:flex-row gap-3">
+        <div className="rounded-xl border border-stayz-border-subtle bg-stayz-surface-card p-4 flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-white/30" />
             <Input
@@ -417,7 +417,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
               <SelectTrigger className="w-[130px] bg-black/40 border-white/10 text-white h-9">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent className="bg-[#111] border-white/10 text-white">
+              <SelectContent className="bg-stayz-surface-card border-stayz-border-default text-white">
                 <SelectItem value="ALL">All Status</SelectItem>
                 <SelectItem value="ACTIVE">Active</SelectItem>
                 <SelectItem value="DRAFT">Draft</SelectItem>
@@ -431,7 +431,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
               <SelectTrigger className="w-[150px] bg-black/40 border-white/10 text-white h-9">
                 <SelectValue placeholder="Property Type" />
               </SelectTrigger>
-              <SelectContent className="bg-[#111] border-white/10 text-white">
+              <SelectContent className="bg-stayz-surface-card border-stayz-border-default text-white">
                 <SelectItem value="ALL">All Types</SelectItem>
                 <SelectItem value="Entire apartment">Entire Apartment</SelectItem>
                 <SelectItem value="Private room">Private Room</SelectItem>
@@ -453,7 +453,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
             {(search || status !== "ALL" || propertyType !== "ALL" || city) && (
               <Button
                 variant="ghost"
-                className="text-xs text-white/40 hover:text-white h-9 px-2 hover:bg-white/5"
+                className="text-xs text-white/40 hover:text-white h-9 px-2 hover:bg-stayz-surface-hover"
                 onClick={() => {
                   setSearch("");
                   setStatus("ALL");
@@ -470,13 +470,13 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
 
         {/* Selected Counter & Bulk Actions Bar */}
         {selectedIds.length > 0 && (
-          <div className="flex items-center justify-between p-3.5 rounded-xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-center justify-between p-3.5 rounded-xl border border-stayz-border-subtle bg-stayz-surface-hover backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
             <span className="text-xs text-white/70 font-semibold">{selectedIds.length} listing(s) selected</span>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white/10 text-white/80 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/20 text-xs h-8"
+                className="border-white/10 text-white/80 hover:bg-stayz-status-success hover:text-stayz-status-success-fg hover:border-stayz-status-success-fg/20 text-xs h-8"
                 onClick={() => handleBulkAction("ACTIVATE")}
               >
                 Activate
@@ -484,7 +484,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white/10 text-white/80 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20 text-xs h-8"
+                className="border-white/10 text-white/80 hover:bg-stayz-status-error hover:text-stayz-status-error-fg hover:border-stayz-status-error-fg/20 text-xs h-8"
                 onClick={() => handleBulkAction("SUSPEND")}
               >
                 Suspend
@@ -504,14 +504,14 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
         {/* Listings Display (Table / Stacked Cards) */}
         {isLoading || isPending ? (
           <div className="space-y-4">
-            <div className="h-10 bg-white/5 rounded-lg animate-pulse" />
-            <div className="h-24 bg-white/5 rounded-lg animate-pulse" />
-            <div className="h-24 bg-white/5 rounded-lg animate-pulse" />
+            <div className="h-10 bg-stayz-surface-hover rounded-lg animate-pulse" />
+            <div className="h-24 bg-stayz-surface-hover rounded-lg animate-pulse" />
+            <div className="h-24 bg-stayz-surface-hover rounded-lg animate-pulse" />
           </div>
         ) : error ? (
           <div className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 text-sm text-red-400">{error}</div>
         ) : listings.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 rounded-2xl border border-dashed border-white/10 bg-[#111]/20">
+          <div className="flex flex-col items-center justify-center p-12 rounded-2xl border border-dashed border-stayz-border-default bg-stayz-surface-card/20">
             <AlertCircle className="h-10 w-10 text-white/20 mb-3" />
             <p className="text-sm font-semibold text-white/60">No properties found</p>
             <p className="text-xs text-white/30 mt-1">Try resetting search filters or modify search terms.</p>
@@ -519,9 +519,9 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
         ) : (
           <>
             {/* Desktop Table View */}
-            <div className="hidden md:block rounded-xl border border-white/[0.08] bg-[#111]/80 backdrop-blur-sm overflow-hidden">
+            <div className="hidden md:block rounded-xl border border-stayz-border-subtle bg-stayz-surface-card backdrop-blur-sm overflow-hidden">
               <Table>
-                <TableHeader className="border-b border-white/[0.08] bg-white/[0.01]">
+                <TableHeader className="border-b border-stayz-border-subtle bg-stayz-surface-hover">
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-12 text-center">
                       <input
@@ -544,7 +544,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                   {listings.map((item) => (
                     <TableRow
                       key={item.id}
-                      className="hover:bg-white/[0.02] cursor-pointer"
+                      className="hover:bg-stayz-surface-hover cursor-pointer"
                       onClick={() => {
                         setInspectedListingId(item.id);
                         setIsDrawerOpen(true);
@@ -559,7 +559,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="h-10 w-16 rounded overflow-hidden bg-white/5 border border-white/[0.08]">
+                        <div className="h-10 w-16 rounded overflow-hidden bg-stayz-surface-hover border border-stayz-border-subtle">
                           <img
                             src={item.images[0]?.url || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=150&auto=format"}
                             alt={item.title}
@@ -586,7 +586,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                             <Button
                               variant="ghost"
                               size="icon-xs"
-                              className="text-emerald-400 hover:bg-emerald-500/10"
+                              className="text-stayz-status-success-fg hover:bg-stayz-status-success"
                               title="Approve Listing"
                               onClick={() => handleApprove(item.id)}
                             >
@@ -597,7 +597,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                             <Button
                               variant="ghost"
                               size="icon-xs"
-                              className="text-rose-400 hover:bg-rose-500/10"
+                              className="text-stayz-status-error-fg hover:bg-stayz-status-error"
                               title="Suspend Listing"
                               onClick={() => handleSuspend(item.id)}
                             >
@@ -605,7 +605,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                             </Button>
                           )}
                           <Link href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="icon-xs" className="text-white/60 hover:bg-white/5" title="View Public Page">
+                            <Button variant="ghost" size="icon-xs" className="text-white/60 hover:bg-stayz-surface-hover" title="View Public Page">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
@@ -631,7 +631,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
               {listings.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-xl border border-white/[0.08] bg-[#111]/80 p-4 space-y-3 cursor-pointer"
+                  className="rounded-xl border border-stayz-border-subtle bg-stayz-surface-card p-4 space-y-3 cursor-pointer"
                   onClick={() => {
                     setInspectedListingId(item.id);
                     setIsDrawerOpen(true);
@@ -639,7 +639,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex gap-3">
-                      <div className="h-12 w-16 shrink-0 rounded overflow-hidden bg-white/5 border border-white/[0.08]">
+                      <div className="h-12 w-16 shrink-0 rounded overflow-hidden bg-stayz-surface-hover border border-stayz-border-subtle">
                         <img
                           src={item.images[0]?.url || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=150&auto=format"}
                           alt={item.title}
@@ -661,7 +661,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.05]">
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-stayz-border-subtle">
                     <div>
                       <span className="text-white/40 block">Owner</span>
                       <span className="font-medium text-white/80">{item.owner.name || "Unnamed"}</span>
@@ -679,7 +679,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                         <Button
                           variant="ghost"
                           size="xs"
-                          className="text-emerald-400 hover:bg-emerald-500/10 text-xs px-2 h-7"
+                          className="text-stayz-status-success-fg hover:bg-stayz-status-success text-xs px-2 h-7"
                           onClick={() => handleApprove(item.id)}
                         >
                           Approve
@@ -689,7 +689,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
                         <Button
                           variant="ghost"
                           size="xs"
-                          className="text-rose-400 hover:bg-rose-500/10 text-xs px-2 h-7"
+                          className="text-stayz-status-error-fg hover:bg-stayz-status-error text-xs px-2 h-7"
                           onClick={() => handleSuspend(item.id)}
                         >
                           Suspend
@@ -716,7 +716,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between pt-4 border-t border-white/[0.08]">
+              <div className="flex items-center justify-between pt-4 border-t border-stayz-border-subtle">
                 <span className="text-xs text-white/40">
                   Showing page {page} of {totalPages} ({totalCount} listing(s))
                 </span>
@@ -767,7 +767,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
 
       {/* Single Listing Delete Confirmation Modal */}
       <Dialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-        <DialogContent className="bg-[#0d0d0d] border border-white/[0.08] text-white">
+        <DialogContent className="bg-stayz-surface-base border border-stayz-border-subtle text-white">
           <DialogHeader>
             <DialogTitle className="text-white">Delete Listing?</DialogTitle>
             <DialogDescription className="text-white/40">
@@ -791,7 +791,7 @@ export function AdminListingsClient({ userEmail }: AdminListingsClientProps) {
 
       {/* Bulk Delete Confirmation Modal */}
       <Dialog open={isBulkDeleteConfirmOpen} onOpenChange={setIsBulkDeleteConfirmOpen}>
-        <DialogContent className="bg-[#0d0d0d] border border-white/[0.08] text-white">
+        <DialogContent className="bg-stayz-surface-base border border-stayz-border-subtle text-white">
           <DialogHeader>
             <DialogTitle className="text-white">Delete Multiple Listings?</DialogTitle>
             <DialogDescription className="text-white/40">

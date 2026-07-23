@@ -368,7 +368,7 @@ export default function BookingRequestsPage() {
                         <button
                           type="button"
                           onClick={() => handleRespond(req.id, "ACCEPTED")}
-                          className="flex items-center justify-center w-9 h-9 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition-colors"
+                          className="flex items-center justify-center w-9 h-9 rounded-full bg-stayz-status-success border border-stayz-status-success-fg/20 text-stayz-status-success-fg hover:bg-stayz-status-success/80 transition-colors"
                           aria-label="Accept request"
                         >
                           <Check className="w-4 h-4" />
@@ -376,7 +376,7 @@ export default function BookingRequestsPage() {
                         <button
                           type="button"
                           onClick={() => handleRespond(req.id, "REJECTED")}
-                          className="flex items-center justify-center w-9 h-9 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-colors"
+                          className="flex items-center justify-center w-9 h-9 rounded-full bg-stayz-status-error border border-stayz-status-error-fg/20 text-stayz-status-error-fg hover:bg-stayz-status-error/80 transition-colors"
                           aria-label="Reject request"
                         >
                           <X className="w-4 h-4" />
@@ -399,15 +399,15 @@ function StatusBadge({ status }: { status: "PENDING" | "ACCEPTED" | "REJECTED" }
   const config = {
     PENDING: {
       label: "Pending",
-      className: "bg-amber-500/10 border-amber-500/20 text-amber-400",
+      className: "bg-stayz-status-neutral border-stayz-status-neutral-fg/20 text-stayz-status-neutral-fg",
     },
     ACCEPTED: {
       label: "Accepted",
-      className: "bg-green-500/10 border-green-500/20 text-green-400",
+      className: "bg-stayz-status-success border-stayz-status-success-fg/20 text-stayz-status-success-fg",
     },
     REJECTED: {
       label: "Rejected",
-      className: "bg-red-500/10 border-red-500/20 text-red-400",
+      className: "bg-stayz-status-error border-stayz-status-error-fg/20 text-stayz-status-error-fg",
     },
   }[status];
 

@@ -11,30 +11,30 @@ const statusConfig: Record<
   ACTIVE: {
     label: "Active",
     className:
-      "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-emerald-500/10",
+      "bg-stayz-status-success text-stayz-status-success-fg border-stayz-status-success-fg/30 shadow-stayz-status-success/10",
   },
   DRAFT: {
     label: "Draft",
     className:
-      "bg-amber-500/15 text-amber-400 border-amber-500/30 shadow-amber-500/10",
+      "bg-stayz-status-neutral text-stayz-status-neutral-fg border-stayz-status-neutral-fg/30 shadow-stayz-status-neutral/10",
   },
   RENTED: {
     label: "Rented",
     className:
-      "bg-zinc-500/15 text-zinc-400 border-zinc-500/30 shadow-zinc-500/10",
+      "bg-stayz-status-neutral text-stayz-status-neutral-fg border-stayz-status-neutral-fg/30 shadow-stayz-status-neutral/10",
   },
   SUSPENDED: {
     label: "Suspended",
     className:
-      "bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-rose-500/10",
+      "bg-stayz-status-error text-stayz-status-error-fg border-stayz-status-error-fg/30 shadow-stayz-status-error/10",
   },
 };
 
 const statusDot: Record<ListingStatus, string> = {
-  ACTIVE: "bg-emerald-400",
-  DRAFT: "bg-amber-400",
-  RENTED: "bg-zinc-400",
-  SUSPENDED: "bg-rose-400",
+  ACTIVE: "bg-stayz-status-success-fg",
+  DRAFT: "bg-stayz-status-neutral-fg",
+  RENTED: "bg-stayz-status-neutral-fg",
+  SUSPENDED: "bg-stayz-status-error-fg",
 };
 
 interface ListingStatusBadgeProps {

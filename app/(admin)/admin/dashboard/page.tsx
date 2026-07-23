@@ -122,7 +122,7 @@ export default async function AdminDashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-stayz-surface-base text-white">
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Page Header */}
@@ -138,7 +138,7 @@ export default async function AdminDashboardPage() {
           {statCards.map((card) => (
             <div
               key={card.label}
-              className={`relative overflow-hidden rounded-2xl border ${card.border} bg-[#111] p-5`}
+              className={`relative overflow-hidden rounded-2xl border ${card.border} bg-stayz-surface-card p-5`}
             >
               <div className={`absolute top-0 right-0 h-20 w-20 rounded-full ${card.bg} blur-2xl opacity-40`} />
               <div className="relative">
@@ -154,9 +154,9 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* ── Quick Links ─────────────────────────────────────────────────────── */}
-        <div className="rounded-2xl border border-white/[0.08] bg-[#111] p-6">
+        <div className="rounded-2xl border border-stayz-border-subtle bg-stayz-surface-card p-6">
           <div className="flex items-center gap-2.5 mb-5">
-            <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-white/5">
+            <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-stayz-surface-hover">
               <ShieldCheck className="h-4 w-4 text-white/60" />
             </div>
             <h2 className="text-sm font-semibold text-white/80 uppercase tracking-wider">
@@ -169,7 +169,7 @@ export default async function AdminDashboardPage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="group flex items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-200"
+                className="group flex items-center gap-4 rounded-xl border border-stayz-border-subtle bg-stayz-surface-hover p-4 hover:bg-stayz-surface-hover hover:border-stayz-border-default transition-all duration-200"
               >
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${link.bg}`}>
                   <link.icon className={`h-5 w-5 ${link.accent}`} />
